@@ -294,7 +294,19 @@ svg text { font-family: system-ui; }
   .bottom-nav { display: block; }
   .section-title { font-size: 13px; }
   .chart-container { height: 180px; }
+  #page-transactions .tx-filters {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+  #page-transactions .tx-filters > div { grid-column: 1 / -1; }
   #page-transactions .tx-filters .select { width: 100% !important; }
+  #page-transactions .tx-filters .btn { width: 100% !important; grid-column: 1 / -1; }
+  #page-transactions .tx-filters > div:first-child { grid-column: 1 / -1; }
+  .table-scroll { width: 100%; overflow-x: auto; }
+  .table { font-size: 12px; }
+  .table th, .table td { padding: 8px 6px; }
   #rep-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .modal-grid-2 { grid-template-columns: 1fr !important; }
 }
@@ -380,7 +392,7 @@ svg text { font-family: system-ui; }
       <!-- TRANSACTIONS -->
       <div class="page" id="page-transactions">
         <div class="tx-filters" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
-          <div style="position:relative;flex:1;min-width:200px">
+          <div style="position:relative;flex:1;min-width:160px">
             <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px"></i>
             <input class="input" id="tx-search" placeholder="Pesquisar..." style="padding-left:32px" oninput="renderTransactions()">
           </div>
