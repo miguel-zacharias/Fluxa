@@ -2,6 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <title>Fluxa Finance</title>
   <link rel="icon" type="image/svg+xml" href="../New Planilha/media/favico.svg">
 </head>
@@ -155,6 +159,13 @@ body {
 }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
+/* ── ICONS ── */
+.ti { color: inherit !important; }
+.topbar .ti { color: var(--text2) !important; }
+.btn .ti { color: inherit !important; }
+.btn-primary .ti { color: var(--text) !important; }
+.btn-ghost .ti { color: var(--text2) !important; }
+
 /* ── BUTTONS ── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius2); border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
 .btn-primary { background: var(--btn-pri-bg); color: var(--text); border: 1px solid var(--btn-pri-bd); }
@@ -194,9 +205,10 @@ body {
 .input {
   background: var(--input-bg); border: 1px solid var(--border2);
   border-radius: var(--radius2); padding: 9px 12px;
-  color: var(--text); font-size: 13px; width: 100%;
+  color: var(--text); font-size: 16px; width: 100%;
   outline: none; transition: border 0.15s, background 0.15s;
 }
+@media (min-width: 641px) { .input { font-size: 13px; } }
 .input:focus { border-color: var(--active-bar); }
 .select {
   background: var(--input-bg); border: 1px solid var(--border2);
@@ -228,10 +240,6 @@ svg text { font-family: system-ui; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
 .empty-state i { font-size: 28px; margin-bottom: 8px; display: block; opacity: 0.3; }
 .sidebar-toggle { display: flex; }
-@media (max-width: 768px) {
-  .grid4 { grid-template-columns: repeat(2, 1fr); }
-  .grid3 { grid-template-columns: 1fr; }
-}
 .page { display: none; }
 .page.active { display: block; }
 .footer {
@@ -240,6 +248,55 @@ svg text { font-family: system-ui; }
   color: var(--text3); font-size: 11px;
   background: var(--sidebar-bg);
   letter-spacing: 0.3px;
+}
+
+/* ════ BOTTOM NAV (mobile) ════ */
+.bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+  background: var(--sidebar-bg); border-top: 1px solid var(--border); height: 60px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-nav-inner { display: flex; align-items: stretch; height: 60px; }
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; cursor: pointer; color: var(--text3);
+  transition: color 0.15s; border: none; background: none; padding: 6px 2px;
+}
+.bnav-item i { font-size: 20px; line-height: 1; }
+.bnav-item span { font-size: 9px; font-weight: 500; letter-spacing: 0.2px; white-space: nowrap; }
+.bnav-item.active { color: var(--text); }
+
+/* ════ TABLE SCROLL ════ */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-scroll .table { min-width: 520px; }
+
+/* ════ TABLET ≤ 1024px ════ */
+@media (max-width: 1024px) {
+  .grid4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ════ MOBILE ≤ 640px ════ */
+@media (max-width: 640px) {
+  .content { padding: 12px; padding-bottom: 80px; }
+  .grid4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid3 { grid-template-columns: 1fr; gap: 10px; }
+  .grid2 { grid-template-columns: 1fr; gap: 10px; }
+  .topbar { padding: 0 12px; height: 54px; }
+  .topbar-search { display: none !important; }
+  .btn-label { display: none; }
+  .stat-value { font-size: 17px; }
+  .stat-label { font-size: 9px; }
+  .stat-card { padding: 14px; }
+  .card { padding: 14px; border-radius: 12px; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px 32px; max-height: 92vh; }
+  .footer { display: none; }
+  .bottom-nav { display: block; }
+  .section-title { font-size: 13px; }
+  .chart-container { height: 180px; }
+  #page-transactions .tx-filters .select { width: 100% !important; }
+  #rep-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .modal-grid-2 { grid-template-columns: 1fr !important; }
 }
 
 </style>
@@ -280,11 +337,11 @@ svg text { font-family: system-ui; }
         </button>
       </div>
       <div class="topbar-right">
-        <div style="position:relative">
-          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px"></i>
+        <div class="topbar-search" style="position:relative">
+          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px"></i>
           <input class="input" id="global-search" placeholder="Buscar transações..." style="width:220px;padding-left:32px;height:34px" oninput="globalSearch(this.value)">
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i>Nova Transação</button>
+        <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i><span class="btn-label">Nova Transação</span></button>
       </div>
     </div>
 
@@ -322,7 +379,7 @@ svg text { font-family: system-ui; }
 
       <!-- TRANSACTIONS -->
       <div class="page" id="page-transactions">
-        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+        <div class="tx-filters" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
           <div style="position:relative;flex:1;min-width:200px">
             <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px"></i>
             <input class="input" id="tx-search" placeholder="Pesquisar..." style="padding-left:32px" oninput="renderTransactions()">
@@ -344,14 +401,14 @@ svg text { font-family: system-ui; }
           <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i>Adicionar</button>
         </div>
         <div class="card">
-          <table class="table">
+          <div class="table-scroll"><table class="table">
             <thead>
               <tr>
                 <th>Descrição</th><th>Categoria</th><th>Método</th><th>Data</th><th>Valor</th><th>Ações</th>
               </tr>
             </thead>
             <tbody id="tx-table-body"></tbody>
-          </table>
+          </table></div>
           <div id="tx-empty" class="empty-state" style="display:none">
             <i class="ti ti-receipt-off"></i>
             <p>Nenhuma transação encontrada</p>
@@ -479,7 +536,7 @@ svg text { font-family: system-ui; }
       <label class="form-label">Descrição</label>
       <input class="input" id="tx-desc" placeholder="Ex: Salário, Aluguel...">
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group">
         <label class="form-label">Valor (R$)</label>
         <input class="input" id="tx-value" type="number" placeholder="0,00" step="0.01">
@@ -489,7 +546,7 @@ svg text { font-family: system-ui; }
         <input class="input" id="tx-date" type="date">
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select class="select" id="tx-cat-modal"></select>
@@ -564,11 +621,11 @@ svg text { font-family: system-ui; }
       <button class="btn btn-ghost" onclick="closeModal('modal-card')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
     <div class="form-group"><label class="form-label">Nome do Cartão</label><input class="input" id="card-name" placeholder="Ex: Nubank Roxo"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Últimos 4 dígitos</label><input class="input" id="card-digits" maxlength="4" placeholder="0000"></div>
       <div class="form-group"><label class="form-label">Limite (R$)</label><input class="input" id="card-limit" type="number" placeholder="5000"></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Fechamento (dia)</label><input class="input" id="card-close" type="number" min="1" max="31" placeholder="10"></div>
       <div class="form-group"><label class="form-label">Vencimento (dia)</label><input class="input" id="card-due" type="number" min="1" max="31" placeholder="20"></div>
     </div>
@@ -603,7 +660,7 @@ svg text { font-family: system-ui; }
     </div>
     <div class="form-group"><label class="form-label">Nome da Meta</label><input class="input" id="goal-name" placeholder="Ex: Reserva de Emergência"></div>
     <div class="form-group"><label class="form-label">Emoji</label><input class="input" id="goal-emoji" placeholder="🎯" style="width:80px"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Valor Alvo (R$)</label><input class="input" id="goal-target" type="number" placeholder="10000"></div>
       <div class="form-group"><label class="form-label">Valor Atual (R$)</label><input class="input" id="goal-current" type="number" placeholder="0"></div>
     </div>
@@ -612,10 +669,6 @@ svg text { font-family: system-ui; }
       <button class="btn btn-ghost" onclick="closeModal('modal-goal')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveGoal()"><i class="ti ti-check"></i>Salvar</button>
     </div>
-    
-    <footer class="footer">
-      MGV Group — Todos os direitos reservados, <span id="footer-year"></span>
-    </footer>
   </div>
 </div>
 
@@ -631,10 +684,6 @@ svg text { font-family: system-ui; }
       <button class="btn btn-ghost" onclick="closeModal('modal-goal-progress')">Cancelar</button>
       <button class="btn btn-primary" onclick="updateGoalProgress()"><i class="ti ti-check"></i>Salvar</button>
     </div>
-    
-    <footer class="footer">
-      MGV Group — Todos os direitos reservados, <span id="footer-year"></span>
-    </footer>
   </div>
 </div>
 
@@ -1451,3 +1500,23 @@ document.addEventListener('keydown', function(e) {
 });
 
 </script>
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-item active" id="bn-dashboard" onclick="navigate('dashboard')">
+      <i class="ti ti-layout-dashboard"></i><span>Início</span>
+    </button>
+    <button class="bnav-item" id="bn-transactions" onclick="navigate('transactions')">
+      <i class="ti ti-arrows-exchange"></i><span>Transações</span>
+    </button>
+    <button class="bnav-item" id="bn-add" onclick="openAddModal()" style="color:var(--text)">
+      <i class="ti ti-plus" style="font-size:24px;font-weight:700"></i><span>Adicionar</span>
+    </button>
+    <button class="bnav-item" id="bn-goals" onclick="navigate('goals')">
+      <i class="ti ti-target"></i><span>Metas</span>
+    </button>
+    <button class="bnav-item" id="bn-more" onclick="toggleSidebar()">
+      <i class="ti ti-dots"></i><span>Mais</span>
+    </button>
+  </div>
+</nav>
