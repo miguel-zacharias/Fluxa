@@ -335,6 +335,141 @@ svg text { font-family: system-ui; }
   .modal-grid-2 { grid-template-columns: 1fr !important; }
 }
 
+
+/* ════════════════════════════════════════
+   TOUR / ONBOARDING
+════════════════════════════════════════ */
+.tour-backdrop {
+  position: fixed; inset: 0; z-index: 4000;
+  pointer-events: none;
+}
+.tour-backdrop-piece {
+  position: fixed; background: rgba(0,0,0,0.72);
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  pointer-events: all;
+}
+/* the "hole" is created by 4 pieces surrounding the target */
+.tour-highlight-ring {
+  position: fixed; z-index: 4001;
+  border: 2px solid rgba(255,255,255,0.55);
+  border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.tour-tooltip {
+  position: fixed; z-index: 4002;
+  background: var(--modal-bg);
+  border: 1px solid var(--border2);
+  border-radius: 16px; padding: 20px 22px 18px;
+  width: 300px; max-width: calc(100vw - 32px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  opacity: 0; pointer-events: none;
+}
+.tour-tooltip.visible { opacity: 1; pointer-events: all; }
+.tour-tooltip-arrow {
+  position: absolute; width: 12px; height: 12px;
+  background: var(--modal-bg); border: 1px solid var(--border2);
+  transform: rotate(45deg);
+}
+.tour-step-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 6px;
+}
+.tour-title {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  margin-bottom: 8px; line-height: 1.3;
+}
+.tour-desc {
+  font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 18px;
+}
+.tour-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.tour-dots { display: flex; gap: 5px; align-items: center; }
+.tour-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border2); transition: all 0.2s;
+}
+.tour-dot.active { background: var(--text); width: 18px; border-radius: 3px; }
+.tour-btns { display: flex; gap: 8px; }
+.tour-btn-skip {
+  font-size: 12px; color: var(--text3); cursor: pointer;
+  background: none; border: none; padding: 6px 4px;
+  transition: color 0.15s;
+}
+.tour-btn-skip:hover { color: var(--text2); }
+.tour-btn-next {
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  background: var(--btn-pri-bg); color: var(--text);
+  border: 1px solid var(--btn-pri-bd);
+  padding: 7px 16px; border-radius: 8px;
+  transition: background 0.15s;
+}
+.tour-btn-next:hover { background: var(--btn-pri-hv); }
+
+/* ── WELCOME MODAL ── */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 5000;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s;
+}
+.welcome-overlay.visible { opacity: 1; pointer-events: all; }
+.welcome-modal {
+  background: var(--modal-bg);
+  border: 1px solid var(--border2);
+  border-radius: 22px; padding: 36px 32px 30px;
+  width: 400px; max-width: calc(100vw - 32px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  text-align: center;
+}
+.welcome-overlay.visible .welcome-modal {
+  transform: scale(1) translateY(0);
+}
+.welcome-icon {
+  font-size: 44px; margin-bottom: 16px; display: block;
+  animation: welcome-bounce 0.8s ease 0.5s both;
+}
+@keyframes welcome-bounce {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.welcome-title {
+  font-size: 22px; font-weight: 800; color: var(--text);
+  margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.welcome-sub {
+  font-size: 14px; color: var(--text2); margin-bottom: 28px;
+  line-height: 1.6;
+}
+.welcome-name-label {
+  font-size: 11px; color: var(--text3); text-align: left;
+  font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 8px; display: block;
+}
+.welcome-name-input {
+  width: 100%; font-size: 16px; text-align: center;
+  font-weight: 600; margin-bottom: 20px;
+}
+.welcome-start-btn {
+  width: 100%; padding: 13px; font-size: 14px; font-weight: 700;
+  background: var(--btn-pri-bg); color: var(--text);
+  border: 1px solid var(--btn-pri-bd); border-radius: 10px;
+  cursor: pointer; transition: background 0.15s; margin-bottom: 10px;
+}
+.welcome-start-btn:hover { background: var(--btn-pri-hv); }
+.welcome-skip-link {
+  font-size: 12px; color: var(--text3); cursor: pointer;
+  background: none; border: none; text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.welcome-skip-link:hover { color: var(--text2); }
+
 </style>
 
 <div class="app" id="app">
@@ -540,6 +675,7 @@ svg text { font-family: system-ui; }
             <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Gerencie seus dados locais</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-ghost" onclick="exportJSON()"><i class="ti ti-download"></i>Backup JSON</button>
+              <button class="btn btn-ghost" onclick="restartTour()"><i class="ti ti-player-play"></i>Ver Tutorial</button>
               <button class="btn btn-danger" onclick="clearAllData()"><i class="ti ti-trash"></i>Limpar Tudo</button>
             </div>
           </div>
@@ -1497,6 +1633,7 @@ if(state.settings.theme==='light'){
   document.getElementById('theme-label').textContent='Modo Escuro';
 }
 renderDashboard();
+checkFirstVisit();
 const repMonth=document.getElementById('rep-month');
 const repYear=document.getElementById('rep-year');
 if(repMonth){const now=new Date();MONTHS.forEach((m,i)=>repMonth.add(new Option(m,i)));repMonth.value=now.getMonth();}
@@ -1544,6 +1681,306 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+
+// ═══════════════════════════════════════════════════════════
+//  FLUXA TOUR & ONBOARDING
+// ═══════════════════════════════════════════════════════════
+const TOUR_STEPS = [
+  {
+    target: null, // center screen
+    title: 'Bem-vindo ao Fluxa! 👋',
+    desc: 'Este tour rápido vai te mostrar as principais funcionalidades do sistema. Deve levar menos de 2 minutos.',
+    placement: 'center'
+  },
+  {
+    target: '[onclick="navigate(\'dashboard\')"]',
+    title: 'Dashboard',
+    desc: 'Visão geral das suas finanças: saldo total, receitas, despesas do mês e gráficos de evolução — tudo em um único lugar.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'transactions\')"]',
+    title: 'Transações',
+    desc: 'Registre e acompanhe todas as suas receitas e despesas. Filtre por categoria, data ou tipo e mantenha o histórico organizado.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'accounts\')"]',
+    title: 'Contas',
+    desc: 'Gerencie suas contas bancárias, poupança, carteira e investimentos. Veja o saldo atual e movimentações de cada conta.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'cards\')"]',
+    title: 'Cartões',
+    desc: 'Cadastre seus cartões de crédito, acompanhe o limite utilizado, datas de fechamento e vencimento da fatura.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'goals\')"]',
+    title: 'Metas Financeiras',
+    desc: 'Crie metas como reserva de emergência, viagem ou compra de um bem. Acompanhe o progresso com barras visuais.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'reports\')"]',
+    title: 'Relatórios',
+    desc: 'Analise seus gastos por categoria, compare meses e exporte os dados em CSV ou JSON para backup.',
+    placement: 'right'
+  },
+  {
+    target: '[onclick="navigate(\'alerts\')"]',
+    title: 'Alertas',
+    desc: 'O Fluxa monitora seus gastos automaticamente e avisa quando estiver próximo do limite do cartão, com metas vencendo ou gastos acima do normal.',
+    placement: 'right'
+  },
+  {
+    target: 'button.btn-primary',
+    title: 'Adicionar Transação',
+    desc: 'Este botão está sempre disponível na barra superior para você registrar uma nova receita ou despesa de qualquer página.',
+    placement: 'bottom'
+  },
+  {
+    target: '[onclick="navigate(\'settings\')"]',
+    title: 'Configurações',
+    desc: 'Personalize seu perfil, escolha a moeda, gerencie categorias e faça backup ou importe seus dados.',
+    placement: 'right'
+  }
+];
+
+let _tourStep = 0;
+let _tourUserName = '';
+
+// ── Check if first visit ─────────────────────────────────────
+function restartTour() {
+  localStorage.removeItem('fluxa_tour_done');
+  navigate('dashboard');
+  showWelcome();
+}
+
+function checkFirstVisit() {
+  const seen = localStorage.getItem('fluxa_tour_done');
+  if (!seen) {
+    setTimeout(function() { showWelcome(); }, 600);
+  }
+}
+
+// ── Welcome modal ────────────────────────────────────────────
+function showWelcome() {
+  var overlay = document.getElementById('welcome-overlay');
+  if (!overlay) return;
+  overlay.classList.add('visible');
+  setTimeout(function() {
+    var inp = document.getElementById('welcome-name-input');
+    if (inp) inp.focus();
+  }, 400);
+}
+
+function startWithName() {
+  var inp = document.getElementById('welcome-name-input');
+  var name = inp ? inp.value.trim() : '';
+  if (!name) { if(inp) inp.focus(); return; }
+  _tourUserName = name;
+  // Save name to settings
+  state.settings.name = name;
+  save();
+  // Update any visible name references
+  var sName = document.getElementById('s-name');
+  if (sName) sName.value = name;
+  // Close welcome, start tour
+  var overlay = document.getElementById('welcome-overlay');
+  if (overlay) { overlay.classList.remove('visible'); }
+  setTimeout(function() { startTour(); }, 350);
+}
+
+function skipWelcome() {
+  var inp = document.getElementById('welcome-name-input');
+  var name = inp ? inp.value.trim() : '';
+  if (name) { state.settings.name = name; save(); }
+  var overlay = document.getElementById('welcome-overlay');
+  if (overlay) overlay.classList.remove('visible');
+  localStorage.setItem('fluxa_tour_done', '1');
+}
+
+// ── Tour engine ──────────────────────────────────────────────
+function startTour() {
+  _tourStep = 0;
+  document.getElementById('tour-layer').style.display = 'block';
+  renderTourStep();
+}
+
+function renderTourStep() {
+  var step = TOUR_STEPS[_tourStep];
+  var total = TOUR_STEPS.length;
+  var tooltip = document.getElementById('tour-tooltip');
+  var layer   = document.getElementById('tour-layer');
+
+  // Fade out tooltip
+  tooltip.classList.remove('visible');
+
+  setTimeout(function() {
+    // Update text
+    document.getElementById('tour-step-label').textContent = 'Passo ' + (_tourStep + 1) + ' de ' + total;
+    document.getElementById('tour-title').textContent = step.title;
+    document.getElementById('tour-desc').textContent = step.desc;
+
+    // Update button label
+    var nextBtn = document.getElementById('tour-btn-next');
+    nextBtn.textContent = _tourStep === total - 1 ? 'Finalizar 🎉' : 'Próximo →';
+
+    // Dots
+    var dots = document.getElementById('tour-dots');
+    dots.innerHTML = '';
+    for (var i = 0; i < total; i++) {
+      var d = document.createElement('div');
+      d.className = 'tour-dot' + (i === _tourStep ? ' active' : '');
+      dots.appendChild(d);
+    }
+
+    // Position spotlight
+    if (step.placement === 'center' || !step.target) {
+      setSpotlightCenter();
+      positionTooltipCenter(tooltip);
+    } else {
+      var el = document.querySelector(step.target);
+      if (!el) {
+        // element not found — skip to center
+        setSpotlightCenter();
+        positionTooltipCenter(tooltip);
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        setTimeout(function() {
+          var rect = el.getBoundingClientRect();
+          setSpotlight(rect);
+          positionTooltip(tooltip, rect, step.placement);
+          tooltip.classList.add('visible');
+        }, 100);
+        return;
+      }
+    }
+    tooltip.classList.add('visible');
+  }, 250);
+}
+
+function setSpotlight(rect) {
+  var pad = 8;
+  var x = rect.left - pad;
+  var y = rect.top - pad;
+  var w = rect.width + pad * 2;
+  var h = rect.height + pad * 2;
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+
+  document.getElementById('tb-top').style.cssText    = 'top:0;left:0;width:100%;height:' + Math.max(0,y) + 'px';
+  document.getElementById('tb-bottom').style.cssText = 'top:' + (y+h) + 'px;left:0;width:100%;height:' + Math.max(0,vh-(y+h)) + 'px';
+  document.getElementById('tb-left').style.cssText   = 'top:' + y + 'px;left:0;width:' + Math.max(0,x) + 'px;height:' + h + 'px';
+  document.getElementById('tb-right').style.cssText  = 'top:' + y + 'px;left:' + (x+w) + 'px;width:' + Math.max(0,vw-(x+w)) + 'px;height:' + h + 'px';
+
+  var ring = document.getElementById('tour-ring');
+  ring.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + h + 'px';
+}
+
+function setSpotlightCenter() {
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+  // darken entire screen
+  document.getElementById('tb-top').style.cssText    = 'top:0;left:0;width:100%;height:' + vh + 'px';
+  document.getElementById('tb-bottom').style.cssText = 'top:0;left:0;width:0;height:0';
+  document.getElementById('tb-left').style.cssText   = 'top:0;left:0;width:0;height:0';
+  document.getElementById('tb-right').style.cssText  = 'top:0;left:0;width:0;height:0';
+  var ring = document.getElementById('tour-ring');
+  ring.style.cssText = 'width:0;height:0;top:' + (vh/2) + 'px;left:' + (vw/2) + 'px';
+}
+
+function positionTooltip(tooltip, rect, placement) {
+  var tw = 308;
+  var th = 220; // estimated
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+  var pad = 16;
+  var x, y;
+
+  if (placement === 'right') {
+    x = rect.right + 16;
+    y = rect.top + rect.height/2 - 100;
+    // flip to left if no room
+    if (x + tw > vw - pad) { x = rect.left - tw - 16; }
+  } else if (placement === 'bottom') {
+    x = rect.left + rect.width/2 - tw/2;
+    y = rect.bottom + 16;
+  } else if (placement === 'top') {
+    x = rect.left + rect.width/2 - tw/2;
+    y = rect.top - th - 16;
+  } else {
+    x = rect.right + 16;
+    y = rect.top;
+  }
+
+  // Clamp to viewport
+  x = Math.max(pad, Math.min(vw - tw - pad, x));
+  y = Math.max(pad, Math.min(vh - 240 - pad, y));
+
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+  tooltip.style.transform = 'none';
+}
+
+function positionTooltipCenter(tooltip) {
+  tooltip.style.left = '50%';
+  tooltip.style.top  = '50%';
+  tooltip.style.transform = 'translate(-50%, -50%)';
+}
+
+function tourNext() {
+  if (_tourStep >= TOUR_STEPS.length - 1) {
+    endTour(true);
+  } else {
+    _tourStep++;
+    renderTourStep();
+  }
+}
+
+function endTour(completed) {
+  localStorage.setItem('fluxa_tour_done', '1');
+  var tooltip = document.getElementById('tour-tooltip');
+  var layer = document.getElementById('tour-layer');
+  tooltip.classList.remove('visible');
+  setTimeout(function() {
+    layer.style.display = 'none';
+    // reset pieces
+    ['tb-top','tb-bottom','tb-left','tb-right'].forEach(function(id) {
+      document.getElementById(id).style.cssText = '';
+    });
+    if (completed) { showTourComplete(); }
+  }, 300);
+}
+
+function showTourComplete() {
+  var name = _tourUserName || state.settings.name || '';
+  var title = name ? ('Tudo pronto, ' + name + '! 🎉') : 'Tudo pronto! 🎉';
+  document.getElementById('tour-complete-title').textContent = title;
+  var overlay = document.getElementById('tour-complete-overlay');
+  if (overlay) {
+    overlay.classList.add('visible');
+  }
+}
+
+function closeTourComplete() {
+  var overlay = document.getElementById('tour-complete-overlay');
+  if (overlay) overlay.classList.remove('visible');
+  navigate('dashboard');
+}
+
+// Enter key on welcome input
+document.addEventListener('DOMContentLoaded', function() {
+  var inp = document.getElementById('welcome-name-input');
+  if (inp) {
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') startWithName();
+    });
+  }
+});
+
 </script>
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav" id="bottom-nav">
@@ -1565,3 +2002,56 @@ document.addEventListener('keydown', function(e) {
     </button>
   </div>
 </nav>
+
+<!-- ═══════════ WELCOME MODAL ═══════════ -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-modal">
+    <span class="welcome-icon">💰</span>
+    <div class="welcome-title">Bem-vindo ao Fluxa</div>
+    <div class="welcome-sub">Seu sistema de controle financeiro pessoal.<br>Como podemos te chamar?</div>
+    <label class="welcome-name-label">Seu nome</label>
+    <input class="input welcome-name-input" id="welcome-name-input" placeholder="Digite seu nome..." autocomplete="off" maxlength="30">
+    <button class="welcome-start-btn" onclick="startWithName()">
+      Começar o tour →
+    </button>
+    <button class="welcome-skip-link" onclick="skipWelcome()">Pular e ir direto ao app</button>
+  </div>
+</div>
+
+<!-- ═══════════ TOUR LAYER ═══════════ -->
+<div id="tour-layer" style="display:none">
+  <!-- 4 backdrop pieces (top, bottom, left, right) -->
+  <div class="tour-backdrop-piece" id="tb-top"></div>
+  <div class="tour-backdrop-piece" id="tb-bottom"></div>
+  <div class="tour-backdrop-piece" id="tb-left"></div>
+  <div class="tour-backdrop-piece" id="tb-right"></div>
+  <!-- highlight ring -->
+  <div class="tour-highlight-ring" id="tour-ring"></div>
+  <!-- tooltip -->
+  <div class="tour-tooltip" id="tour-tooltip">
+    <div class="tour-step-label" id="tour-step-label"></div>
+    <div class="tour-title" id="tour-title"></div>
+    <div class="tour-desc" id="tour-desc"></div>
+    <div class="tour-footer">
+      <div class="tour-dots" id="tour-dots"></div>
+      <div class="tour-btns">
+        <button class="tour-btn-skip" onclick="endTour()">Pular tour</button>
+        <button class="tour-btn-next" id="tour-btn-next" onclick="tourNext()">Próximo →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TOUR COMPLETE MODAL ═══════════ -->
+<div class="welcome-overlay" id="tour-complete-overlay">
+  <div class="welcome-modal">
+    <span class="welcome-icon" style="animation-delay:0.2s">🎉</span>
+    <div class="welcome-title" id="tour-complete-title">Tudo pronto!</div>
+    <div class="welcome-sub" id="tour-complete-sub">
+      Agora você conhece o Fluxa. Comece adicionando sua primeira transação e tome controle das suas finanças.
+    </div>
+    <button class="welcome-start-btn" onclick="closeTourComplete()">
+      Ir para o Dashboard ✓
+    </button>
+  </div>
+</div>
