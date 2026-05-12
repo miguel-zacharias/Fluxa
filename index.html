@@ -2102,13 +2102,13 @@ function globalSearch(q){
 }
 
 function exportCSV(){
-  const rows=[['Data','Tipo','Descrição','Categoria','Método','Valor'],...state.transactions.map(t=>[t.date,t.type,t.desc,t.cat,t.method||'',t.value])];
+  const rows=[['Data','Tipo','Descricao','Categoria','Metodo','Valor'],...state.transactions.map(t=>[t.date,t.type,t.desc,t.cat,t.method||'',t.value])];
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-  download('fluxa_export.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(csv));
+  download('seu_extrato_fluxa_export.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(csv));
 }
 function exportJSON(){
   const data=JSON.stringify({transactions:state.transactions,accounts:state.accounts,cards:state.cards,goals:state.goals,subscriptions:state.subscriptions,settings:state.settings},null,2);
-  download('fluxa_backup.json','data:application/json;charset=utf-8,'+encodeURIComponent(data));
+  download('seu_extrato_fluxa_backup.json','data:application/json;charset=utf-8,'+encodeURIComponent(data));
 }
 function download(name,href){const a=document.createElement('a');a.href=href;a.download=name;a.click();}
 
