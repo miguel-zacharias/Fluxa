@@ -182,6 +182,7 @@ body {
 .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
 .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
 .stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 10px; }
 .stat-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
@@ -276,12 +277,14 @@ svg text { font-family: system-ui; }
 /* ════ TABLET ≤ 1024px ════ */
 @media (max-width: 1024px) {
   .grid4 { grid-template-columns: repeat(2, 1fr); }
+  .grid5 { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ════ MOBILE ≤ 640px ════ */
 @media (max-width: 640px) {
   .content { padding: 12px; padding-bottom: 80px; }
   .grid4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid5 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .grid3 { grid-template-columns: 1fr; gap: 10px; }
   .grid2 { grid-template-columns: 1fr; gap: 10px; }
   .topbar { padding: 0 12px; height: 54px; }
@@ -428,6 +431,8 @@ svg text { font-family: system-ui; }
       <div class="nav-item" onclick="navigate('accounts')"><i class="ti ti-wallet"></i>Contas</div>
       <div class="nav-item" onclick="navigate('cards')"><i class="ti ti-credit-card"></i>Cartões</div>
       <div class="nav-item" onclick="navigate('goals')"><i class="ti ti-target"></i>Metas</div>
+      <div class="nav-item" onclick="navigate('subscriptions')"><i class="ti ti-calendar-repeat"></i>Assinaturas</div>
+      <div class="nav-item" onclick="navigate('monthlybills')"><i class="ti ti-calendar-due"></i>Contas Mensais</div>
       <div class="nav-section">Análise</div>
       <div class="nav-item" onclick="navigate('reports')"><i class="ti ti-chart-bar"></i>Relatórios</div>
       <div class="nav-item" onclick="navigate('alerts')"><i class="ti ti-bell"></i>Alertas</div>
@@ -461,7 +466,7 @@ svg text { font-family: system-ui; }
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
-        <div class="grid4" style="margin-bottom:20px" id="stat-cards"></div>
+        <div class="grid5" style="margin-bottom:20px" id="stat-cards"></div>
         <div class="grid2" style="margin-bottom:20px">
           <div class="card">
             <div class="section-title">Gastos por Categoria <span style="font-size:12px;color:var(--text3)">Este mês</span></div>
@@ -553,6 +558,59 @@ svg text { font-family: system-ui; }
           <button class="btn btn-primary" onclick="openGoalModal()"><i class="ti ti-plus"></i>Nova Meta</button>
         </div>
         <div class="grid3" id="goals-grid"></div>
+      </div>
+
+      <!-- SUBSCRIPTIONS -->
+      <div class="page" id="page-subscriptions">
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary" onclick="openSubscriptionModal()"><i class="ti ti-plus"></i>Nova Assinatura</button>
+        </div>
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="stat-card">
+            <div class="stat-label">Total Mensal</div>
+            <div class="stat-value" style="color:var(--red2)" id="sub-total-monthly">R$ 0,00</div>
+            <div class="stat-sub" style="margin-top:6px"><span class="stat-badge badge-red"><i class="ti ti-calendar-repeat" style="font-size:11px"></i> Assinaturas ativas</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Próximo Vencimento</div>
+            <div class="stat-value" id="sub-next-due">--</div>
+            <div class="stat-sub" style="margin-top:6px"><span class="stat-badge badge-yellow"><i class="ti ti-clock" style="font-size:11px"></i> Dias restantes</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Serviço</th><th>Categoria</th><th>Cartão</th><th></th>Valor Mensal</th><th>Vencimento</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="subscriptions-table-body"></tbody>
+            </table>
+          </div>
+          <div id="subscriptions-empty" class="empty-state" style="display:none">
+            <i class="ti ti-calendar-repeat"></i>
+            <p>Nenhuma assinatura cadastrada</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY BILLS -->
+      <div class="page" id="page-monthlybills">
+        <div class="page-header">
+          <h2>Contas Mensais</h2>
+          <button class="btn btn-primary" onclick="openMonthlyBillModal()"><i class="ti ti-plus"></i><span class="btn-label">Nova Conta</span></button>
+        </div>
+        <div class="content-section">
+          <div id="monthlybills-list">
+            <!-- Monthly bills will be rendered here -->
+          </div>
+          <div id="monthlybills-empty" class="empty-state">
+            <i class="ti ti-calendar-due"></i>
+            <p>Nenhuma conta mensal cadastrada</p>
+          </div>
+        </div>
       </div>
 
       <!-- REPORTS -->
@@ -806,6 +864,90 @@ svg text { font-family: system-ui; }
   </div>
 </div>
 
+<!-- SUBSCRIPTION MODAL -->
+<div class="modal-overlay" id="modal-subscription">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="subscription-modal-title">Nova Assinatura</span>
+      <button class="btn btn-ghost" onclick="closeModal('modal-subscription')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group"><label class="form-label">Nome do Serviço</label><input class="input" id="sub-name" placeholder="Ex: Netflix, Spotify, Aluguel"></div>
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Valor Mensal (R$)</label><input class="input" id="sub-value" type="number" placeholder="29,90" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Dia do Vencimento</label><input class="input" id="sub-due-day" type="number" min="1" max="31" placeholder="10"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Categoria</label>
+      <select class="select" id="sub-category">
+        <option value="Streaming">Streaming</option>
+        <option value="Software">Software</option>
+        <option value="Moradia">Moradia</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Educação">Educação</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Cartão Vinculado</label>
+      <select class="select" id="sub-card-id">
+        <option value="">Selecionar cartão</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="select" id="sub-status">
+        <option value="active">Ativa</option>
+        <option value="paused">Pausada</option>
+        <option value="cancelled">Cancelada</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Notas (opcional)</label><textarea class="input" id="sub-notes" placeholder="Observações sobre a assinatura..." rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-subscription')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSubscription()"><i class="ti ti-check"></i>Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY BILL MODAL -->
+<div class="modal-overlay" id="modal-monthlybill">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="monthlybill-modal-title">Nova Conta Mensal</span>
+      <button class="btn btn-ghost" onclick="closeModal('modal-monthlybill')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group"><label class="form-label">Nome da Conta</label><input class="input" id="mb-name" placeholder="Ex: Energia Elétrica, Água, Internet"></div>
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Valor Estimado (R$)</label><input class="input" id="mb-value" type="number" placeholder="150,00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Dia do Vencimento</label><input class="input" id="mb-due-day" type="number" min="1" max="31" placeholder="10"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Cartão Vinculado</label>
+      <select class="select" id="mb-card-id">
+        <option value="">Selecionar cartão</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Categoria</label>
+      <select class="select" id="mb-category">
+        <option value="Moradia">Moradia</option>
+        <option value="Utilidades">Utilidades</option>
+        <option value="Serviços">Serviços</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Educação">Educação</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="select" id="mb-status">
+        <option value="active">Ativa</option>
+        <option value="inactive">Inativa</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Notas (opcional)</label><textarea class="input" id="mb-notes" placeholder="Observações sobre a conta..." rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-monthlybill')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMonthlyBill()"><i class="ti ti-check"></i>Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
 document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -820,6 +962,8 @@ let state = {
   accounts: [],
   cards: [],
   goals: [],
+  subscriptions: [],
+  monthlyBills: [],
   settings: { name: 'Usuário', currency: 'BRL', theme: 'dark', categories: [...CATS_DEFAULT] },
   editingTx: null,
   editingGoal: null,
@@ -838,6 +982,8 @@ function load() {
       state.accounts = p.accounts||[];
       state.cards = p.cards||[];
       state.goals = p.goals||[];
+      state.subscriptions = p.subscriptions||[];
+      state.monthlyBills = p.monthlyBills||[];
       if(p.settings) state.settings = {...state.settings,...p.settings};
     }
   } catch(e){}
@@ -850,6 +996,8 @@ function save() {
       accounts: state.accounts,
       cards: state.cards,
       goals: state.goals,
+      subscriptions: state.subscriptions,
+      monthlyBills: state.monthlyBills,
       settings: state.settings
     }));
   } catch(e){}
@@ -930,6 +1078,8 @@ function navigate(page) {
   else if(page==='accounts') renderAccounts();
   else if(page==='cards') renderCards();
   else if(page==='goals') renderGoals();
+  else if(page==='subscriptions') renderSubscriptions();
+  else if(page==='monthlybills') renderMonthlyBills();
   else if(page==='reports') renderReports();
   else if(page==='alerts') renderAlerts();
   else if(page==='settings') renderSettings();
@@ -963,11 +1113,18 @@ function renderDashboard() {
   const prevExp = prevTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.value,0);
   const expDiff = prevExp>0?((expense-prevExp)/prevExp*100).toFixed(1):0;
 
+  const activeSubs = state.subscriptions.filter(s=>s.status==='active');
+  const totalSubs = activeSubs.reduce((s,sub)=>s+sub.value,0);
+  
+  const activeBills = state.monthlyBills.filter(b=>b.status==='active');
+  const totalBills = activeBills.reduce((s,bill)=>s+bill.value,0);
+
   document.getElementById('stat-cards').innerHTML = `
     <div class="stat-card"><div class="stat-label">Saldo Total</div><div class="stat-value">${fmtCur(balance)}</div><div class="stat-sub" style="margin-top:6px"><span class="stat-badge badge-blue">${state.accounts.length} contas</span></div></div>
     <div class="stat-card"><div class="stat-label">Receita do Mês</div><div class="stat-value" style="color:var(--green2)">${fmtCur(income)}</div><div class="stat-sub" style="margin-top:6px"><span class="stat-badge badge-green"><i class="ti ti-trending-up" style="font-size:11px"></i> Receitas</span></div></div>
     <div class="stat-card"><div class="stat-label">Despesas do Mês</div><div class="stat-value" style="color:var(--red2)">${fmtCur(expense)}</div><div class="stat-sub" style="margin-top:6px"><span class="stat-badge ${Number(expDiff)>0?'badge-red':'badge-green'}">${Number(expDiff)>0?'↑':'↓'} ${Math.abs(expDiff)}%</span></div></div>
     <div class="stat-card"><div class="stat-label">Saldo do Mês</div><div class="stat-value" style="color:${income-expense>=0?'var(--green2)':'var(--red2)'}">${fmtCur(income-expense)}</div><div class="stat-sub" style="margin-top:6px"><span class="stat-badge ${income-expense>=0?'badge-green':'badge-red'}">${income-expense>=0?'Positivo':'Negativo'}</span></div></div>
+    <div class="stat-card"><div class="stat-label">Contas Mensais</div><div class="stat-value" style="color:var(--red2)">${fmtCur(totalBills)}</div><div class="stat-sub" style="margin-top:6px"><span class="stat-badge badge-red"><i class="ti ti-calendar-due" style="font-size:11px"></i> ${activeBills.length} ativas</span></div></div>
   `;
 
   renderPieChart(txs);
@@ -1147,6 +1304,14 @@ function getAlerts() {
   state.cards.forEach(c=>{ const pct=c.used/c.limit; if(pct>=0.8) alerts.push({icon:'ti-credit-card',color:'#f59e0b',title:'Limite do Cartão',msg:`${c.name} está em ${(pct*100).toFixed(0)}% do limite`}); });
   state.goals.forEach(g=>{ if(g.current>=g.target) alerts.push({icon:'ti-trophy',color:'#10b981',title:'Meta Concluída!',msg:`Parabéns! Você atingiu a meta: ${g.name}`}); });
   state.goals.forEach(g=>{ const dl=new Date(g.deadline); const diff=Math.round((dl-now)/86400000); if(diff>=0&&diff<=30&&g.current<g.target) alerts.push({icon:'ti-calendar',color:'#8b5cf6',title:'Prazo se Aproximando',msg:`Meta "${g.name}" vence em ${diff} dias`}); });
+  state.subscriptions.forEach(s=>{ const nextDate=new Date(s.nextDate); const diff=Math.round((nextDate-now)/86400000); if(diff>=0&&diff<=7) alerts.push({icon:'ti-calendar-event',color:'#f59e0b',title:'Assinatura Próxima',msg:`"${s.name}" vence em ${diff} dias (${fmtCur(s.value)})`}); });
+  state.monthlyBills.forEach(b=>{ 
+    if(b.status !== 'active') return;
+    const nextDue = getNextBillDueDate(b.dueDay); 
+    const diff=Math.round((nextDue-now)/86400000); 
+    if(diff>=0&&diff<=3) alerts.push({icon:'ti-calendar-due',color:'#ef4444',title:'Conta Mensal Próxima',msg:`"${b.name}" vence em ${diff} dias (${fmtCur(b.value)})`}); 
+    else if(diff < 0) alerts.push({icon:'ti-alert-triangle',color:'#dc2626',title:'Conta Mensal Vencida',msg:`"${b.name}" está ${Math.abs(diff)} dias atrasada (${fmtCur(b.value)})`}); 
+  });
   return alerts;
 }
 
@@ -1575,6 +1740,343 @@ function updateGoalProgress(){
   save(); closeModal('modal-goal-progress'); renderGoals();
 }
 
+function renderSubscriptions(){
+  const el=document.getElementById('subscriptions-table-body');
+  const empty=document.getElementById('subscriptions-empty');
+  if(!state.subscriptions.length){el.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  el.innerHTML=state.subscriptions.map(s=>{
+    const statusColors={active:'var(--green2)',paused:'var(--yellow)',cancelled:'var(--red2)'};
+    const statusLabels={active:'Ativa',paused:'Pausada',cancelled:'Cancelada'};
+    const today=new Date(); const dueDay=s.dueDay;
+    const currentMonth=today.getMonth(); const currentYear=today.getFullYear();
+    const dueDate=new Date(currentYear,currentMonth,dueDay>today.getDate()?dueDay:dueDay);
+    if(dueDay<=today.getDate()) dueDate.setMonth(currentMonth+1);
+    const daysUntilDue=Math.ceil((dueDate-today)/86400000);
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:6px;background:${statusColors[s.status]||'var(--text3)'}20;display:flex;align-items:center;justify-content:center">
+            <i class="ti ti-calendar-repeat" style="font-size:13px;color:${statusColors[s.status]||'var(--text3)'}"></i>
+          </div>
+          <div>
+            <div style="font-weight:500;color:var(--text)">${s.name}</div>
+            ${s.notes?'<div style="margin-top:2px;font-size:11px;color:var(--text3)">'+s.notes+'</div>':''}
+          </div>
+        </div>
+      </td>
+      <td><span class="tag" style="background:${CAT_COLORS[s.category]||'#94a3b8'}20;color:${CAT_COLORS[s.category]||'#94a3b8'}">${s.category}</span></td>
+      <td>${s.cardId?state.cards.find(c=>c.id===s.cardId)?.name||'--':'Nenhum'}</td>
+      <td style="font-weight:600;color:var(--red2)">${fmtCur(s.value)}</td>
+      <td>Dia ${s.dueDay}${daysUntilDue<=7&&s.status==='active'?' <span style="color:var(--yellow);font-size:11px">('+daysUntilDue+' dias)</span>':''}</td>
+      <td><span class="tag" style="background:${statusColors[s.status]||'var(--text3)'}20;color:${statusColors[s.status]||'var(--text3)'}">${statusLabels[s.status]}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost" onclick="editSubscription('${s.id}')" style="padding:4px 8px;height:28px"><i class="ti ti-edit" style="font-size:13px"></i></button>
+          <button class="btn btn-danger" onclick="deleteSubscription('${s.id}')" style="padding:4px 8px;height:28px"><i class="ti ti-trash" style="font-size:13px"></i></button>
+        </div>
+      </td>
+    </tr>`;}).join('');
+
+  // Update summary cards
+  const activeSubs=state.subscriptions.filter(s=>s.status==='active');
+  const totalMonthly=activeSubs.reduce((s,sub)=>s+sub.value,0);
+  document.getElementById('sub-total-monthly').textContent=fmtCur(totalMonthly);
+
+  // Next due date
+  const today=new Date();
+  let nextDue=null; let minDays=Infinity;
+  activeSubs.forEach(s=>{
+    const dueDay=s.dueDay;
+    const currentMonth=today.getMonth(); const currentYear=today.getFullYear();
+    const dueDate=new Date(currentYear,currentMonth,dueDay>today.getDate()?dueDay:dueDay);
+    if(dueDay<=today.getDate()) dueDate.setMonth(currentMonth+1);
+    const daysUntilDue=Math.ceil((dueDate-today)/86400000);
+    if(daysUntilDue<minDays){minDays=daysUntilDue; nextDue=s;}
+  });
+  if(nextDue){
+    document.getElementById('sub-next-due').textContent=`Dia ${nextDue.dueDay}`;
+    document.getElementById('sub-next-due').nextElementSibling.querySelector('span').textContent=minDays+' dias';
+  } else {
+    document.getElementById('sub-next-due').textContent='--';
+    document.getElementById('sub-next-due').nextElementSibling.querySelector('span').textContent='Nenhum';
+  }
+}
+
+function openSubscriptionModal(){
+  state.editingSubscription=null;
+  document.getElementById('subscription-modal-title').textContent='Nova Assinatura';
+  
+  // Populate card options
+  const cardSelect = document.getElementById('sub-card-id');
+  cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
+    state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  
+  document.getElementById('sub-name').value='';
+  document.getElementById('sub-value').value='';
+  document.getElementById('sub-due-day').value='1';
+  document.getElementById('sub-category').value='Streaming';
+  document.getElementById('sub-card-id').value='';
+  document.getElementById('sub-status').value='active';
+  document.getElementById('sub-notes').value='';
+  document.getElementById('modal-subscription').classList.add('active');
+}
+
+function editSubscription(id){
+  const s=state.subscriptions.find(s=>s.id===id);
+  if(!s)return;
+  state.editingSubscription=id;
+  document.getElementById('subscription-modal-title').textContent='Editar Assinatura';
+  
+  // Populate card options
+  const cardSelect = document.getElementById('sub-card-id');
+  cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
+    state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  
+  document.getElementById('sub-name').value=s.name;
+  document.getElementById('sub-value').value=s.value;
+  document.getElementById('sub-due-day').value=s.dueDay;
+  document.getElementById('sub-category').value=s.category;
+  document.getElementById('sub-card-id').value=s.cardId||'';
+  document.getElementById('sub-status').value=s.status;
+  document.getElementById('sub-notes').value=s.notes||'';
+  document.getElementById('modal-subscription').classList.add('active');
+}
+
+function saveSubscription(){
+  const name=document.getElementById('sub-name').value.trim();
+  const value=parseFloat(document.getElementById('sub-value').value);
+  const dueDay=parseInt(document.getElementById('sub-due-day').value);
+  const category=document.getElementById('sub-category').value;
+  const cardId=document.getElementById('sub-card-id').value;
+  const status=document.getElementById('sub-status').value;
+  const notes=document.getElementById('sub-notes').value.trim();
+  if(!name||!value||isNaN(dueDay)){alert('Preencha todos os campos obrigatórios');return;}
+  if(state.editingSubscription){
+    const idx=state.subscriptions.findIndex(s=>s.id===state.editingSubscription);
+    if(idx>=0) state.subscriptions[idx]={...state.subscriptions[idx],name,value,dueDay,category,cardId,status,notes};
+  } else {
+    state.subscriptions.push({id:uid(),name,value,dueDay,category,cardId,status,notes});
+  }
+  save(); closeModal('modal-subscription'); renderSubscriptions();
+}
+
+function deleteSubscription(id){
+  if(confirm('Excluir esta assinatura?')){state.subscriptions=state.subscriptions.filter(s=>s.id!==id);save();renderSubscriptions();}
+}
+
+// MONTHLY BILLS FUNCTIONS
+function renderMonthlyBills(){
+  const container = document.getElementById('monthlybills-list');
+  const empty = document.getElementById('monthlybills-empty');
+  
+  if(state.monthlyBills.length === 0){
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  container.innerHTML = state.monthlyBills.map(bill => {
+    const card = state.cards.find(c => c.id === bill.cardId);
+    const nextDue = getNextBillDueDate(bill.dueDay);
+    const daysUntilDue = Math.ceil((nextDue - new Date()) / (1000 * 60 * 60 * 24));
+    const isOverdue = daysUntilDue < 0;
+    const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
+    
+    return `
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <i class="ti ti-calendar-due" style="color:${bill.status === 'active' ? '#3b82f6' : '#94a3b8'}"></i>
+            <div>
+              <h4 style="margin:0;font-size:16px">${bill.name}</h4>
+              <small style="color:var(--text2)">${bill.category} • ${card ? card.name : 'Nenhum cartão'}</small>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-ghost btn-sm" onclick="markBillAsPaid('${bill.id}')" title="Marcar como pago">
+              <i class="ti ti-check"></i>
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="editMonthlyBill('${bill.id}')" title="Editar">
+              <i class="ti ti-edit"></i>
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteMonthlyBill('${bill.id}')" title="Excluir">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-content">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <small style="color:var(--text2)">Valor Estimado</small>
+              <div style="font-weight:600;color:var(--text)">${fmtCur(bill.value)}</div>
+            </div>
+            <div>
+              <small style="color:var(--text2)">Vence dia</small>
+              <div style="font-weight:600;color:var(--text)">${bill.dueDay}</div>
+            </div>
+            <div>
+              <small style="color:var(--text2)">Status</small>
+              <div style="font-weight:600;color:${bill.status === 'active' ? '#10b981' : '#ef4444'}">${bill.status === 'active' ? 'Ativa' : 'Inativa'}</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <small style="color:var(--text2)">Próximo vencimento</small>
+              <div style="font-weight:600;color:${isOverdue ? '#ef4444' : isDueSoon ? '#f59e0b' : 'var(--text)'}">
+                ${nextDue.toLocaleDateString('pt-BR')} 
+                <span style="font-size:12px">(${isOverdue ? `${Math.abs(daysUntilDue)} dias atraso` : `${daysUntilDue} dias`})</span>
+              </div>
+            </div>
+            ${bill.lastPaid ? `
+              <div style="text-align:right">
+                <small style="color:var(--text2)">Último pagamento</small>
+                <div style="font-size:12px;color:var(--text2)">${new Date(bill.lastPaid).toLocaleDateString('pt-BR')}</div>
+              </div>
+            ` : ''}
+          </div>
+          ${bill.notes ? `<div style="margin-top:8px;padding:8px;background:var(--input-bg);border-radius:4px;font-size:13px;color:var(--text2)">${bill.notes}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getNextBillDueDate(dueDay) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  
+  let dueDate = new Date(currentYear, currentMonth, dueDay);
+  if (dueDate <= now) {
+    dueDate = new Date(currentYear, currentMonth + 1, dueDay);
+  }
+  
+  return dueDate;
+}
+
+function openMonthlyBillModal(){
+  state.editingMonthlyBill = null;
+  document.getElementById('monthlybill-modal-title').textContent = 'Nova Conta Mensal';
+  
+  // Populate card options
+  const cardSelect = document.getElementById('mb-card-id');
+  cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
+    state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  
+  document.getElementById('mb-name').value = '';
+  document.getElementById('mb-value').value = '';
+  document.getElementById('mb-due-day').value = '1';
+  document.getElementById('mb-card-id').value = '';
+  document.getElementById('mb-category').value = 'Moradia';
+  document.getElementById('mb-status').value = 'active';
+  document.getElementById('mb-notes').value = '';
+  
+  document.getElementById('modal-monthlybill').classList.add('active');
+}
+
+function editMonthlyBill(id){
+  state.editingMonthlyBill = id;
+  const bill = state.monthlyBills.find(b => b.id === id);
+  if(!bill) return;
+  
+  document.getElementById('monthlybill-modal-title').textContent = 'Editar Conta Mensal';
+  
+  // Populate card options
+  const cardSelect = document.getElementById('mb-card-id');
+  cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
+    state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  
+  document.getElementById('mb-name').value = bill.name;
+  document.getElementById('mb-value').value = bill.value;
+  document.getElementById('mb-due-day').value = bill.dueDay;
+  document.getElementById('mb-card-id').value = bill.cardId || '';
+  document.getElementById('mb-category').value = bill.category;
+  document.getElementById('mb-status').value = bill.status;
+  document.getElementById('mb-notes').value = bill.notes || '';
+  
+  document.getElementById('modal-monthlybill').classList.add('active');
+}
+
+function saveMonthlyBill(){
+  const name = document.getElementById('mb-name').value.trim();
+  const value = parseFloat(document.getElementById('mb-value').value);
+  const dueDay = parseInt(document.getElementById('mb-due-day').value);
+  const cardId = document.getElementById('mb-card-id').value;
+  const category = document.getElementById('mb-category').value;
+  const status = document.getElementById('mb-status').value;
+  const notes = document.getElementById('mb-notes').value.trim();
+  
+  if(!name || !value || !dueDay){
+    alert('Preencha todos os campos obrigatórios');
+    return;
+  }
+  
+  if(dueDay < 1 || dueDay > 31){
+    alert('Dia do vencimento deve ser entre 1 e 31');
+    return;
+  }
+  
+  if(state.editingMonthlyBill){
+    const idx = state.monthlyBills.findIndex(b => b.id === state.editingMonthlyBill);
+    if(idx >= 0){
+      state.monthlyBills[idx] = {...state.monthlyBills[idx], name, value, dueDay, cardId, category, status, notes};
+    }
+  } else {
+    const bill = {id: uid(), name, value, dueDay, cardId, category, status, notes, lastPaid: null};
+    state.monthlyBills.push(bill);
+  }
+  
+  save();
+  closeModal('modal-monthlybill');
+  renderMonthlyBills();
+  renderDashboard(); // Update dashboard if needed
+}
+
+function deleteMonthlyBill(id){
+  if(confirm('Excluir esta conta mensal? Esta ação não pode ser desfeita.')){
+    state.monthlyBills = state.monthlyBills.filter(b => b.id !== id);
+    save();
+    renderMonthlyBills();
+  }
+}
+
+function markBillAsPaid(id){
+  const bill = state.monthlyBills.find(b => b.id === id);
+  if(!bill) return;
+  
+  const today = new Date();
+  bill.lastPaid = today.toISOString().split('T')[0];
+  
+  // If bill has a card linked, charge it and update card limit
+  if(bill.cardId){
+    const card = state.cards.find(c => c.id === bill.cardId);
+    if(card){
+      card.used += bill.value;
+      // Create a transaction record
+      const tx = {
+        id: uid(),
+        type: 'expense',
+        desc: `${bill.name} - Conta Mensal`,
+        value: bill.value,
+        date: bill.lastPaid,
+        cat: bill.category,
+        method: 'credit_card',
+        cardId: bill.cardId,
+        accountId: '',
+        tags: ['conta-mensal']
+      };
+      state.transactions.push(tx);
+    }
+  }
+  
+  save();
+  renderMonthlyBills();
+  renderDashboard();
+  renderCards(); // Update card usage display
+}
+
 function saveSettings(){
   state.settings.name=document.getElementById('s-name').value.trim()||'Usuário';
   state.settings.currency=document.getElementById('s-currency').value;
@@ -1605,7 +2107,7 @@ function exportCSV(){
   download('fluxa_export.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(csv));
 }
 function exportJSON(){
-  const data=JSON.stringify({transactions:state.transactions,accounts:state.accounts,cards:state.cards,goals:state.goals,settings:state.settings},null,2);
+  const data=JSON.stringify({transactions:state.transactions,accounts:state.accounts,cards:state.cards,goals:state.goals,subscriptions:state.subscriptions,settings:state.settings},null,2);
   download('fluxa_backup.json','data:application/json;charset=utf-8,'+encodeURIComponent(data));
 }
 function download(name,href){const a=document.createElement('a');a.href=href;a.download=name;a.click();}
@@ -1730,6 +2232,7 @@ function confirmImport() {
   if(Array.isArray(d.accounts))     state.accounts=d.accounts;
   if(Array.isArray(d.cards))        state.cards=d.cards;
   if(Array.isArray(d.goals))        state.goals=d.goals;
+  if(Array.isArray(d.subscriptions)) state.subscriptions=d.subscriptions;
   if(d.settings) state.settings=Object.assign({},state.settings,d.settings);
   save(); _pendingImport=null; closeModal('modal-import');
   if(state.settings.theme==='light'){
@@ -1741,7 +2244,7 @@ function confirmImport() {
     var ti=document.getElementById('theme-icon');if(ti)ti.className='ti ti-sun';
     var tl=document.getElementById('theme-label');if(tl)tl.textContent='Modo Claro';
   }
-  renderDashboard();renderTransactions();renderAccounts();renderCards();renderGoals();renderSettings();
+  renderDashboard();renderTransactions();renderAccounts();renderCards();renderGoals();renderSubscriptions();renderSettings();
   showToast('Importacao concluida com sucesso!');
 }
 
