@@ -5,11 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="media/favico.svg">
+  <meta name="theme-color" content="#0e0e0e">
+  <meta name="apple-mobile-web-app-title" content="Fluxa Finance">
+  <meta name="application-name" content="Fluxa Finance">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <title>Fluxa Finance</title>
   <link rel="icon" type="image/svg+xml" href="media/favico.svg">
 </head>
 <body>
+
+<div id="pwa-banner" class="pwa-banner" style="display:none">
+  <div class="pwa-banner-content">
+    <div>
+      <strong>Adicionar à Tela Inicial</strong>
+      <p id="pwa-banner-text">Abra o app mais rápido a partir da tela inicial.</p>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="btn btn-primary" id="pwa-install-btn" onclick="installPwa()">Adicionar</button>
+      <button class="btn btn-ghost" id="pwa-dismiss-btn" onclick="dismissPwaBanner()">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <style>
 /* ════════════════════════════════════════
@@ -451,6 +469,41 @@ svg text { font-family: system-ui; }
 .welcome-start-btn:hover { background: var(--btn-pri-hv); }
 .welcome-skip-link { font-size: 12px; color: var(--text3); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 3px; }
 .welcome-skip-link:hover { color: var(--text2); }
+
+.pwa-banner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 18px;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+}
+.pwa-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(20,20,20,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.pwa-banner-content p {
+  margin: 6px 0 0;
+  color: var(--text2);
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 260px;
+}
+.pwa-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.pwa-banner button {
+  min-width: 90px;
+}
 
 </style>
 
@@ -2674,10 +2727,92 @@ function closeTourComplete(){
   navigate('dashboard');
 }
 
+var deferredPwaPrompt = null;
+var PWA_DISMISS_KEY = 'fluxa_pwa_dismissed';
+
+function isIos() {
+  return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+}
+
+function isInStandaloneMode() {
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+         (window.navigator.standalone === true);
+}
+
+function showPwaBanner(type) {
+  if (localStorage.getItem(PWA_DISMISS_KEY) === '1') return;
+  if (isInStandaloneMode()) return;
+  var banner = document.getElementById('pwa-banner');
+  var text = document.getElementById('pwa-banner-text');
+  if (!banner || !text) return;
+  if (type === 'ios') {
+    text.innerHTML = 'Toque no botão <strong>Compartilhar</strong> e escolha <strong>Adicionar à Tela de Início</strong>.';
+    document.getElementById('pwa-install-btn').textContent = 'Entendi';
+  } else {
+    text.textContent = 'Abra o app mais rápido a partir da tela inicial.';
+    document.getElementById('pwa-install-btn').textContent = 'Adicionar';
+  }
+  banner.style.display = 'block';
+}
+
+function hidePwaBanner() {
+  var banner = document.getElementById('pwa-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+function dismissPwaBanner() {
+  localStorage.setItem(PWA_DISMISS_KEY, '1');
+  hidePwaBanner();
+}
+
+function initPwaInstallPrompt() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').catch(function() {});
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+    showPwaBanner();
+  });
+
+  window.addEventListener('appinstalled', function() {
+    hidePwaBanner();
+    deferredPwaPrompt = null;
+  });
+
+  setTimeout(function() {
+    if (isInStandaloneMode()) return;
+    if (deferredPwaPrompt) {
+      showPwaBanner();
+    } else if (isIos()) {
+      showPwaBanner('ios');
+    }
+  }, 1200);
+}
+
+function installPwa() {
+  if (isIos() && !deferredPwaPrompt) {
+    dismissPwaBanner();
+    return;
+  }
+  if (!deferredPwaPrompt) return;
+  deferredPwaPrompt.prompt();
+  deferredPwaPrompt.userChoice.then(function(choiceResult) {
+    if (choiceResult.outcome === 'accepted') {
+      hidePwaBanner();
+      deferredPwaPrompt = null;
+    }
+  });
+}
+
 // Enter on welcome input
 document.addEventListener('DOMContentLoaded',function(){
   var inp=document.getElementById('welcome-name-input');
   if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter')startWithName();});
+  initPwaInstallPrompt();
 });
 
 checkFirstVisit();
@@ -2767,3 +2902,5 @@ checkFirstVisit();
     <button class="welcome-start-btn" onclick="closeTourComplete()">Ir para o Dashboard ✓</button>
   </div>
 </div>
+</body>
+</html>
