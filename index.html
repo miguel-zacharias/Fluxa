@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <title>Fluxa Finance</title>
-  <link rel="icon" type="image/svg+xml" href="../New Planilha/media/favico.svg">
+  <link rel="icon" type="image/svg+xml" href="media/favico.svg">
 </head>
 <body>
 
@@ -320,20 +320,59 @@ svg text { font-family: system-ui; }
     min-width: 0 !important;
   }
   .table-scroll {
-    width: 100%; overflow-x: auto; padding-bottom: 4px;
+    width: 100%; overflow-x: hidden; padding-bottom: 4px;
   }
   .table {
-    width: 100%; min-width: 100% !important; table-layout: fixed;
+    width: 100%; min-width: 0 !important; table-layout: fixed;
   }
-  .table th, .table td {
+  .table th,
+  .table td {
     padding: 8px 6px;
     white-space: normal;
     word-break: break-word;
+    line-height: 1.3;
   }
-  .table tr td:last-child,
-  .table tr th:last-child {
-    white-space: nowrap;
+  .table thead {
+    display: none;
   }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .table tbody tr td {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .table tbody tr td:last-child {
+    border-bottom: none;
+  }
+  .table tbody tr td:before {
+    display: block;
+    content: attr(data-label);
+    color: var(--text3);
+    font-size: 11px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  #page-transactions .table tbody tr td:nth-child(1):before { content: 'Descrição'; }
+  #page-transactions .table tbody tr td:nth-child(2):before { content: 'Categoria'; }
+  #page-transactions .table tbody tr td:nth-child(3):before { content: 'Método'; }
+  #page-transactions .table tbody tr td:nth-child(4):before { content: 'Data'; }
+  #page-transactions .table tbody tr td:nth-child(5):before { content: 'Valor'; }
+  #page-transactions .table tbody tr td:nth-child(6):before { content: 'Ações'; }
+  #page-subscriptions .table tbody tr td:nth-child(1):before { content: 'Serviço'; }
+  #page-subscriptions .table tbody tr td:nth-child(2):before { content: 'Categoria'; }
+  #page-subscriptions .table tbody tr td:nth-child(3):before { content: 'Cartão'; }
+  #page-subscriptions .table tbody tr td:nth-child(4):before { content: 'Valor Mensal'; }
+  #page-subscriptions .table tbody tr td:nth-child(5):before { content: 'Vencimento'; }
+  #page-subscriptions .table tbody tr td:nth-child(6):before { content: 'Status'; }
+  #page-subscriptions .table tbody tr td:nth-child(7):before { content: 'Ações'; }
   #rep-stats { grid-template-columns: repeat(2, 1fr) !important; }
   .modal-grid-2 { grid-template-columns: 1fr !important; }
 }
@@ -583,7 +622,7 @@ svg text { font-family: system-ui; }
             <table class="table">
               <thead>
                 <tr>
-                  <th>Serviço</th><th>Categoria</th><th>Cartão</th><th></th>Valor Mensal</th><th>Vencimento</th><th>Status</th><th>Ações</th>
+                  <th>Serviço</th><th>Categoria</th><th>Cartão</th><th>Valor Mensal</th><th>Vencimento</th><th>Status</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="subscriptions-table-body"></tbody>
@@ -726,13 +765,22 @@ svg text { font-family: system-ui; }
       </div>
       <div class="form-group">
         <label class="form-label">Método</label>
-        <select class="select" id="tx-method">
+        <select class="select" id="tx-method" onchange="updateTransactionFields()">
           <option value="pix">PIX</option>
-          <option value="dinheiro">Dinheiro</option>
-          <option value="cartao_debito">Cartão Débito</option>
-          <option value="cartao_credito">Cartão Crédito</option>
-          <option value="transferencia">Transferência</option>
+          <option value="cash">Dinheiro</option>
+          <option value="debit">Cartão Débito</option>
+          <option value="credit_card">Cartão Crédito</option>
+          <option value="bank_transfer">Transferência</option>
           <option value="boleto">Boleto</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="select" id="tx-status">
+          <option value="paid">Pago</option>
+          <option value="pending">Pendente</option>
         </select>
       </div>
       <div class="form-group">
@@ -740,9 +788,27 @@ svg text { font-family: system-ui; }
         <select class="select" id="tx-card-modal"></select>
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" id="tx-account-row">
       <label class="form-label">Conta</label>
       <select class="select" id="tx-account-modal"></select>
+    </div>
+    <div class="modal-grid-2" id="tx-transfer-row" style="display:none;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Conta de Origem</label>
+        <select class="select" id="tx-from-account-modal"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Conta de Destino</label>
+        <select class="select" id="tx-to-account-modal"></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Parcelamento (opcional)</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <input class="input" id="tx-installment-current" type="number" placeholder="Atual" min="1">
+        <input class="input" id="tx-installment-total" type="number" placeholder="Total" min="1">
+        <input class="input" id="tx-installment-group" type="text" placeholder="Grupo (ex: iphone_12x)">
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Tags (separadas por vírgula)</label>
@@ -1016,25 +1082,150 @@ function fmtCur(v) {
 }
 function fmtDate(s) { if(!s)return''; const p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 
-function adjustAccountBalance(accountId, amount) {
-  if(!accountId) return;
-  const account = state.accounts.find(a=>a.id===accountId);
-  if(account) account.balance = Number((account.balance + amount).toFixed(2));
+function normalizeMethod(method) {
+  if(!method) return '';
+  return method==='cartao_debito' ? 'debit' : method==='cartao_credito' ? 'credit_card' : method==='transferencia' ? 'bank_transfer' : method;
 }
 
-function updateCardUsage(tx, multiplier) {
-  if(!tx || !tx.cardId || tx.type!=='expense') return;
-  if(!['cartao_debito','cartao_credito'].includes(tx.method)) return;
-  const card = state.cards.find(c=>c.id===tx.cardId);
-  if(!card) return;
-  card.used = Math.max(0, Number(((card.used||0) + tx.value * multiplier).toFixed(2)));
+function formatMethodLabel(method) {
+  const labels = {
+    pix: 'PIX',
+    cash: 'Dinheiro',
+    debit: 'Cartão Débito',
+    credit_card: 'Cartão Crédito',
+    bank_transfer: 'Transferência',
+    boleto: 'Boleto'
+  };
+  return labels[method] || method.replace(/_/g, ' ');
 }
 
-function applyTransactionBalanceChange(tx, multiplier) {
-  if(!tx) return;
-  const amount = tx.type==='income' ? tx.value : -tx.value;
-  adjustAccountBalance(tx.accountId, amount * multiplier);
-  updateCardUsage(tx, multiplier);
+function isCreditCardPurchase(tx) {
+  return tx && tx.type==='expense' && tx.method==='credit_card' && tx.cardId;
+}
+
+function isCardPayment(tx) {
+  return tx && tx.type==='expense' && tx.method==='bank_transfer' && tx.cardId && !tx.toAccountId;
+}
+
+function isTransfer(tx) {
+  return tx && tx.method==='bank_transfer' && tx.fromAccountId && tx.toAccountId;
+}
+
+function getCardUsed(card) {
+  const purchases = state.transactions
+    .filter(t => isCreditCardPurchase(t) && t.cardId===card.id)
+    .reduce((s,t) => s + t.value, 0);
+  const payments = state.transactions
+    .filter(t => isCardPayment(t) && t.cardId===card.id)
+    .reduce((s,t) => s + t.value, 0);
+  return Number(Math.max(0, purchases - payments).toFixed(2));
+}
+
+function getAccountBalance(account) {
+  const opening = Number(account.balance || 0);
+  return Number(state.transactions.reduce((sum, tx) => {
+    if(tx.type==='income' && tx.accountId===account.id) return sum + tx.value;
+    if(tx.method==='credit_card' && tx.type==='expense') return sum;
+    if(isTransfer(tx)) {
+      if(tx.fromAccountId===account.id) return sum - tx.value;
+      if(tx.toAccountId===account.id) return sum + tx.value;
+      return sum;
+    }
+    if(tx.type==='expense' && tx.accountId===account.id) return sum - tx.value;
+    return sum;
+  }, opening).toFixed(2));
+}
+
+function getAccountTotals(account) {
+  let income = 0;
+  let expense = 0;
+  state.transactions.forEach(tx => {
+    if(tx.type==='income' && tx.accountId===account.id) income += tx.value;
+    if(tx.type==='expense' && tx.accountId===account.id && tx.method!=='credit_card') expense += tx.value;
+    if(isTransfer(tx)) {
+      if(tx.fromAccountId===account.id) expense += tx.value;
+      if(tx.toAccountId===account.id) income += tx.value;
+    }
+  });
+  return { income, expense };
+}
+
+function getTxStatusLabel(status) {
+  return status==='pending' ? 'Pendente' : 'Pago';
+}
+
+function getTxStatusColor(status) {
+  return status==='pending' ? 'var(--yellow)' : 'var(--green2)';
+}
+
+function updateTransactionFields() {
+  const method = document.getElementById('tx-method').value;
+  const transferRow = document.getElementById('tx-transfer-row');
+  const accountRow = document.getElementById('tx-account-row');
+  const statusSel = document.getElementById('tx-status');
+  if(method==='bank_transfer') {
+    transferRow.style.display='grid';
+    accountRow.style.display='none';
+  } else {
+    transferRow.style.display='none';
+    accountRow.style.display='block';
+  }
+  if(statusSel && method==='credit_card' && !statusSel.value) {
+    statusSel.value='pending';
+  }
+}
+
+function generateInstallmentTransactions(tx) {
+  if(!tx.installment || !tx.installment.groupId || !tx.installment.total || !tx.installment.current) return;
+  const { groupId, current, total } = tx.installment;
+  const baseDate = new Date(tx.date + 'T12:00:00');
+  const existing = state.transactions.filter(t => t.installment && t.installment.groupId===groupId);
+  const existingIndexes = existing.map(t => t.installment?.current).filter(Boolean);
+  for(let next = current + 1; next <= total; next++) {
+    if(existingIndexes.includes(next)) continue;
+    const future = { ...tx };
+    future.id = uid();
+    future.installment = { ...tx.installment, current: next };
+    future.date = fmt(new Date(baseDate.getFullYear(), baseDate.getMonth() + (next - current), baseDate.getDate()));
+    future.status = 'pending';
+    future.tags = [...(tx.tags||[]), 'parcela'];
+    state.transactions.push(future);
+  }
+}
+
+function syncRecurringTransactions() {
+  const today = new Date();
+  let hasNewTx = false;
+  state.subscriptions.forEach(sub => {
+    if(sub.status !== 'active') return;
+    const dueDay = Number(sub.dueDay || 1);
+    let dueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
+    if(dueDate < new Date(today.getFullYear(), today.getMonth(), 1)) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
+    const exists = state.transactions.some(t => t.subscriptionId===sub.id && t.date===fmt(dueDate));
+    if(!exists) {
+      const method = sub.cardId ? 'credit_card' : 'bank_transfer';
+      const tx = {
+        id: uid(),
+        type: 'expense',
+        desc: sub.name,
+        value: sub.value,
+        date: fmt(dueDate),
+        cat: sub.category,
+        method,
+        cardId: sub.cardId || '',
+        accountId: sub.cardId ? '' : (sub.accountId || ''),
+        fromAccountId: sub.cardId ? '' : (sub.accountId || ''),
+        toAccountId: '',
+        tags: ['assinatura'],
+        status: 'pending',
+        subscriptionId: sub.id,
+        installment: null
+      };
+      state.transactions.push(tx);
+      hasNewTx = true;
+    }
+  });
+  if(hasNewTx) save();
 }
 
 function toggleSidebar() {
@@ -1107,7 +1298,7 @@ function renderDashboard() {
   const txs = getMonthTxs(now.getMonth(), now.getFullYear());
   const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.value,0);
   const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.value,0);
-  const balance = state.accounts.reduce((s,a)=>s+a.balance,0);
+  const balance = state.accounts.reduce((s,a)=>s+getAccountBalance(a),0);
   const patrimony = balance;
   const prevTxs = getMonthTxs(now.getMonth()-1<0?11:now.getMonth()-1, now.getMonth()-1<0?now.getFullYear()-1:now.getFullYear());
   const prevExp = prevTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.value,0);
@@ -1352,9 +1543,12 @@ function renderTransactions() {
         </div>
       </td>
       <td><span class="tag" style="background:${CAT_COLORS[t.cat]||'#94a3b8'}20;color:${CAT_COLORS[t.cat]||'#94a3b8'}"><span class="category-dot" style="background:${CAT_COLORS[t.cat]||'#94a3b8'}"></span>${t.cat}</span></td>
-      <td style="text-transform:capitalize">${(t.method||'').replace(/_/g,' ')}${t.cardId?` • ${state.cards.find(c=>c.id===t.cardId)?.name||''}`:''}</td>
+      <td style="text-transform:capitalize">${formatMethodLabel(t.method)}${t.installment?` • ${t.installment.current}/${t.installment.total}`:''}${t.cardId?` • ${state.cards.find(c=>c.id===t.cardId)?.name||''}`:''}</td>
       <td>${fmtDate(t.date)}</td>
-      <td style="font-weight:600;color:${t.type==='income'?'var(--green2)':'var(--red2)'}">${t.type==='income'?'+':'-'}${fmtCur(t.value)}</td>
+      <td style="font-weight:600;color:${t.type==='income'?'var(--green2)':'var(--red2)'}">
+        ${t.type==='income'?'+':'-'}${fmtCur(t.value)}
+        ${t.status?`<span class="tag" style="background:${getTxStatusColor(t.status)}20;color:${getTxStatusColor(t.status)};border-radius:999px;padding:2px 8px;font-size:11px;margin-left:8px">${getTxStatusLabel(t.status)}</span>`:''}
+      </td>
       <td>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost" onclick="editTransaction('${t.id}')" style="padding:4px 8px;height:28px"><i class="ti ti-edit" style="font-size:13px"></i></button>
@@ -1370,9 +1564,9 @@ function renderAccounts() {
   const labels={checking:'Conta Corrente',savings:'Poupança',wallet:'Carteira',cash:'Dinheiro Físico',investment:'Investimentos'};
   if(!state.accounts.length){el.innerHTML='<div class="empty-state"><i class="ti ti-wallet-off"></i><p>Nenhuma conta criada</p></div>';return;}
   el.innerHTML=state.accounts.map(a=>{
-    const txs=state.transactions.filter(t=>t.accountId===a.id);
-    const totalIn=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.value,0);
-    const totalOut=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.value,0);
+    const txs=state.transactions.filter(t=>t.accountId===a.id || (isTransfer(t) && (t.fromAccountId===a.id || t.toAccountId===a.id)));
+    const { income: totalIn, expense: totalOut } = getAccountTotals(a);
+    const currentBalance = getAccountBalance(a);
     return `<div class="card" style="border-top:3px solid ${a.color}">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <div style="width:40px;height:40px;border-radius:10px;background:${a.color}20;display:flex;align-items:center;justify-content:center">
@@ -1384,7 +1578,7 @@ function renderAccounts() {
         </div>
         <button class="btn btn-danger" onclick="deleteAccount('${a.id}')" style="margin-left:auto;padding:4px 8px;height:28px"><i class="ti ti-trash" style="font-size:13px"></i></button>
       </div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:12px">${fmtCur(a.balance)}</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:12px">${fmtCur(currentBalance)}</div>
       <div style="display:flex;gap:8px">
         <div style="flex:1;padding:8px;background:var(--input-bg);border-radius:8px;text-align:center">
           <div style="font-size:10px;color:var(--text3);margin-bottom:2px">Entradas</div>
@@ -1403,7 +1597,8 @@ function renderCards() {
   const el=document.getElementById('cards-grid');
   if(!state.cards.length){el.innerHTML='<div class="empty-state"><i class="ti ti-credit-card-off"></i><p>Nenhum cartão cadastrado</p></div>';return;}
   el.innerHTML=state.cards.map(c=>{
-    const pct=Math.min(100,(c.used||0)/c.limit*100);
+    const used = getCardUsed(c);
+    const pct=Math.min(100, used/c.limit*100);
     return `<div class="card">
       <div style="background:${c.color||'#7c3aed'};border-radius:12px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
@@ -1417,12 +1612,12 @@ function renderCards() {
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
         <div><div style="font-size:11px;color:var(--text3)">Limite Total</div><div style="font-size:15px;font-weight:600">${fmtCur(c.limit)}</div></div>
-        <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">Utilizado</div><div style="font-size:15px;font-weight:600;color:${pct>80?'var(--red2)':pct>50?'var(--yellow)':'var(--green2)'}">${fmtCur(c.used||0)}</div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">Utilizado</div><div style="font-size:15px;font-weight:600;color:${pct>80?'var(--red2)':pct>50?'var(--yellow)':'var(--green2)'}">${fmtCur(used)}</div></div>
       </div>
       <div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--green)'}"></div></div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:12px">
         <span>${pct.toFixed(0)}% utilizado</span>
-        <span>Disponível: ${fmtCur(c.limit-(c.used||0))}</span>
+        <span>Disponível: ${fmtCur(c.limit-used)}</span>
       </div>
       <div style="display:flex;gap:8px;font-size:11px;color:var(--text3)">
         <span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Fecha dia ${c.close}</span>
@@ -1543,6 +1738,12 @@ function openAddModal(id) {
   cardSel.innerHTML='<option value="">Nenhum cartão</option>'+state.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   const accSel=document.getElementById('tx-account-modal');
   accSel.innerHTML='<option value="">Selecionar conta</option>'+state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  const fromAccSel=document.getElementById('tx-from-account-modal');
+  const toAccSel=document.getElementById('tx-to-account-modal');
+  if(fromAccSel && toAccSel) {
+    fromAccSel.innerHTML=accSel.innerHTML;
+    toAccSel.innerHTML=accSel.innerHTML;
+  }
   const today=fmt(new Date());
   if(id){
     const t=state.transactions.find(t=>t.id===id);
@@ -1553,8 +1754,14 @@ function openAddModal(id) {
       document.getElementById('tx-date').value=t.date;
       catSel.value=t.cat;
       document.getElementById('tx-method').value=t.method||'pix';
+      document.getElementById('tx-status').value=t.status||'paid';
       cardSel.value=t.cardId||'';
       accSel.value=t.accountId||'';
+      if(fromAccSel) fromAccSel.value=t.fromAccountId||'';
+      if(toAccSel) toAccSel.value=t.toAccountId||'';
+      document.getElementById('tx-installment-current').value=t.installment?.current||'';
+      document.getElementById('tx-installment-total').value=t.installment?.total||'';
+      document.getElementById('tx-installment-group').value=t.installment?.groupId||'';
       document.getElementById('tx-tags').value=(t.tags||[]).join(', ');
     }
   } else {
@@ -1563,10 +1770,17 @@ function openAddModal(id) {
     document.getElementById('tx-value').value='';
     document.getElementById('tx-date').value=today;
     document.getElementById('tx-method').value='pix';
+    document.getElementById('tx-status').value='paid';
     cardSel.value='';
     accSel.value='';
+    if(fromAccSel) fromAccSel.value='';
+    if(toAccSel) toAccSel.value='';
+    document.getElementById('tx-installment-current').value='';
+    document.getElementById('tx-installment-total').value='';
+    document.getElementById('tx-installment-group').value='';
     document.getElementById('tx-tags').value='';
   }
+  updateTransactionFields();
   modal.classList.add('active');
 }
 
@@ -1581,23 +1795,46 @@ function saveTransaction() {
   const value=parseFloat(document.getElementById('tx-value').value);
   const date=document.getElementById('tx-date').value;
   const cat=document.getElementById('tx-cat-modal').value;
-  const method=document.getElementById('tx-method').value;
+  const method=normalizeMethod(document.getElementById('tx-method').value);
+  const status=document.getElementById('tx-status').value;
   const cardId=document.getElementById('tx-card-modal').value;
   const accountId=document.getElementById('tx-account-modal').value;
+  const fromAccountId=document.getElementById('tx-from-account-modal')?.value||'';
+  const toAccountId=document.getElementById('tx-to-account-modal')?.value||'';
+  const installmentCurrent=parseInt(document.getElementById('tx-installment-current').value,10)||0;
+  const installmentTotal=parseInt(document.getElementById('tx-installment-total').value,10)||0;
+  const installmentGroup=document.getElementById('tx-installment-group').value.trim();
   const tags=document.getElementById('tx-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   if(!desc||!value||!date){alert('Preencha todos os campos obrigatórios');return;}
+  const installment = installmentGroup && installmentCurrent && installmentTotal ? {current: installmentCurrent, total: installmentTotal, groupId: installmentGroup} : null;
+  const tx = {
+    id: state.editingTx || uid(),
+    type: state.txType,
+    desc,
+    value,
+    date,
+    cat,
+    method,
+    cardId: cardId||'',
+    accountId: accountId||'',
+    fromAccountId: fromAccountId||'',
+    toAccountId: toAccountId||'',
+    tags,
+    status: status|| (method==='credit_card' ? 'pending' : 'paid'),
+    installment,
+    subscriptionId: null,
+    monthlyBillId: null
+  };
   if(state.editingTx){
     const idx=state.transactions.findIndex(t=>t.id===state.editingTx);
     if(idx>=0){
-      const oldTx = state.transactions[idx];
-      applyTransactionBalanceChange(oldTx, -1);
-      state.transactions[idx] = {...oldTx,desc,value,date,cat,method,cardId,accountId,tags,type:state.txType};
-      applyTransactionBalanceChange(state.transactions[idx], 1);
+      state.transactions[idx] = {...state.transactions[idx], ...tx};
     }
   } else {
-    const tx = {id:uid(),type:state.txType,desc,value,date,cat,method,cardId,accountId,tags};
     state.transactions.push(tx);
-    applyTransactionBalanceChange(tx, 1);
+    if(installment && installment.groupId && installment.total > installment.current) {
+      generateInstallmentTransactions(tx);
+    }
   }
   save(); closeModal('modal-add');
   renderDashboard(); renderTransactions();
@@ -1606,8 +1843,6 @@ function saveTransaction() {
 function editTransaction(id){openAddModal(id);}
 function deleteTransaction(id){
   if(confirm('Excluir esta transação?')){
-    const tx = state.transactions.find(t=>t.id===id);
-    if(tx){ applyTransactionBalanceChange(tx, -1); }
     state.transactions=state.transactions.filter(t=>t.id!==id);
     save(); renderTransactions(); renderDashboard();
   }
@@ -1858,7 +2093,8 @@ function saveSubscription(){
   } else {
     state.subscriptions.push({id:uid(),name,value,dueDay,category,cardId,status,notes});
   }
-  save(); closeModal('modal-subscription'); renderSubscriptions();
+  syncRecurringTransactions();
+  save(); closeModal('modal-subscription'); renderSubscriptions(); renderDashboard(); renderCards();
 }
 
 function deleteSubscription(id){
@@ -2049,26 +2285,46 @@ function markBillAsPaid(id){
   const today = new Date();
   bill.lastPaid = today.toISOString().split('T')[0];
   
-  // If bill has a card linked, charge it and update card limit
   if(bill.cardId){
-    const card = state.cards.find(c => c.id === bill.cardId);
-    if(card){
-      card.used += bill.value;
-      // Create a transaction record
-      const tx = {
-        id: uid(),
-        type: 'expense',
-        desc: `${bill.name} - Conta Mensal`,
-        value: bill.value,
-        date: bill.lastPaid,
-        cat: bill.category,
-        method: 'credit_card',
-        cardId: bill.cardId,
-        accountId: '',
-        tags: ['conta-mensal']
-      };
-      state.transactions.push(tx);
-    }
+    const tx = {
+      id: uid(),
+      type: 'expense',
+      desc: `${bill.name} - Conta Mensal`,
+      value: bill.value,
+      date: bill.lastPaid,
+      cat: bill.category,
+      method: 'credit_card',
+      cardId: bill.cardId,
+      accountId: '',
+      fromAccountId: '',
+      toAccountId: '',
+      tags: ['conta-mensal'],
+      status: 'pending',
+      installment: null,
+      subscriptionId: null,
+      monthlyBillId: bill.id
+    };
+    state.transactions.push(tx);
+  } else {
+    const tx = {
+      id: uid(),
+      type: 'expense',
+      desc: `${bill.name} - Conta Mensal`,
+      value: bill.value,
+      date: bill.lastPaid,
+      cat: bill.category,
+      method: 'bank_transfer',
+      cardId: '',
+      accountId: '',
+      fromAccountId: '',
+      toAccountId: '',
+      tags: ['conta-mensal'],
+      status: 'pending',
+      installment: null,
+      subscriptionId: null,
+      monthlyBillId: bill.id
+    };
+    state.transactions.push(tx);
   }
   
   save();
@@ -2121,6 +2377,7 @@ function clearAllData(){
 function closeModal(id){document.getElementById(id).classList.remove('active');}
 
 load();
+syncRecurringTransactions();
 if(state.settings.theme==='light'){
   document.documentElement.setAttribute('data-theme','light');
   document.getElementById('theme-icon').className='ti ti-moon';
