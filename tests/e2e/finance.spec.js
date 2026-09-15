@@ -147,3 +147,34 @@ test('backup inclui contas mensais e estado versionado', async ({ page }) => {
   });
   expect(result).toEqual({version: 2, hasBills: true});
 });
+
+test('tutorial mobile mantém tooltip e controles dentro da tela', async ({ page }) => {
+  await page.setViewportSize({width: 390, height: 844});
+  await seed(page);
+  await page.evaluate(() => {
+    document.getElementById('welcome-overlay')?.classList.remove('visible');
+    document.getElementById('tour-complete-overlay')?.classList.remove('visible');
+    startTour();
+  });
+
+  const tooltip = page.locator('#tour-tooltip');
+  const bottomNav = page.locator('.bottom-nav');
+  for (let step = 0; step < 10; step += 1) {
+    await expect(tooltip).toBeVisible();
+    const box = await tooltip.boundingBox();
+    const navBox = await bottomNav.boundingBox();
+    expect(box).not.toBeNull();
+    expect(navBox).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    expect(box.y + box.height).toBeLessThanOrEqual(navBox.y);
+
+    if (step < 9) {
+      await page.getByRole('button', {name: 'Próximo'}).click();
+    } else {
+      await page.getByRole('button', {name: 'Finalizar!'}).click();
+    }
+  }
+  await expect(page.locator('#tour-complete-overlay')).toHaveClass(/visible/);
+});

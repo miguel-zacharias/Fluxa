@@ -1116,11 +1116,12 @@ function renderCardColorPalette() {
   if (!container) return;
 
   const columns = CARD_COLOR_PALETTE.map((columnColors, columnIndex) => `
-    <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;">
+    <div class="card-color-palette-column">
       ${columnColors.map(color => `
         <div
+          class="card-color-swatch"
           data-color="${color.toLowerCase()}"
-          style="width:22px;height:22px;border-radius:5px;background:${color};cursor:pointer;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)"
+          style="background:${color}"
           onclick="selectCardColor('${color}', this)"
         ></div>
       `).join('')}
@@ -1128,13 +1129,6 @@ function renderCardColorPalette() {
   `).join('');
 
   container.style.display = 'grid';
-  container.style.gridTemplateColumns = 'repeat(7, 22px)';
-  container.style.gap = '5px';
-  container.style.alignItems = 'stretch';
-  container.style.justifyContent = 'flex-start';
-  container.style.minHeight = '52px';
-  container.style.width = '100%';
-  container.style.maxWidth = '56%';
   container.innerHTML = columns;
 
   const selectedColor = (state.cardColor || '#7c3aed').toLowerCase();
@@ -2037,16 +2031,16 @@ function showToast(msg,type){
 //  TOUR & ONBOARDING
 // ═══════════════════════════════════════════════════════════
 var TOUR_STEPS=[
-  {target:null,title:'Bem-vindo ao Fluxa!',desc:'Este tour rapido vai te mostrar as principais funcionalidades. Leva menos de 2 minutos.',placement:'center'},
-  {target:'[onclick="navigate(\'dashboard\')"]',title:'Dashboard',desc:'Visao geral das suas financas: saldo total, receitas, despesas do mes e graficos de evolucao — tudo em um unico lugar.',placement:'right'},
-  {target:'[onclick="navigate(\'transactions\')"]',title:'Transacoes',desc:'Registre receitas e despesas. Filtre por categoria, data ou tipo e mantenha o historico completo e organizado.',placement:'right'},
-  {target:'[onclick="navigate(\'accounts\')"]',title:'Contas',desc:'Gerencie contas bancarias, poupanca, carteira e investimentos. Veja o saldo e movimentacoes de cada uma.',placement:'right'},
-  {target:'[onclick="navigate(\'cards\')"]',title:'Cartoes',desc:'Cadastre cartoes de credito, acompanhe o limite utilizado, datas de fechamento e vencimento da fatura.',placement:'right'},
-  {target:'[onclick="navigate(\'goals\')"]',title:'Metas Financeiras',desc:'Crie metas como reserva de emergencia ou viagem. Acompanhe o progresso com barras visuais e prazos.',placement:'right'},
-  {target:'[onclick="navigate(\'reports\')"]',title:'Relatorios',desc:'Analise gastos por categoria, compare meses e exporte em CSV ou JSON para backup e sincronizacao entre dispositivos.',placement:'right'},
-  {target:'[onclick="navigate(\'alerts\')"]',title:'Alertas',desc:'O Fluxa monitora automaticamente: limite do cartao, metas vencendo e gastos acima do normal.',placement:'right'},
-  {target:'button.btn-primary',title:'Nova Transacao',desc:'Sempre disponivel na barra superior para registrar uma receita ou despesa de qualquer pagina.',placement:'bottom'},
-  {target:'[onclick="navigate(\'settings\')"]',title:'Configuracoes & Importar',desc:'Personalize o perfil, escolha a moeda, gerencie categorias, faca backup JSON ou importe dados de outro dispositivo.',placement:'right'}
+  {target:null,title:'Bem-vindo ao Fluxa!',desc:'Este tour rápido vai te mostrar as principais funcionalidades. Leva menos de 2 minutos.',placement:'center'},
+  {target:'[onclick="navigate(\'dashboard\')"]',title:'Dashboard',desc:'Visão geral das suas finanças: saldo total, receitas, despesas do mês e gráficos de evolução — tudo em um único lugar.',placement:'right'},
+  {target:'[onclick="navigate(\'transactions\')"]',title:'Transações',desc:'Registre receitas e despesas. Filtre por categoria, data ou tipo e mantenha o histórico completo e organizado.',placement:'right'},
+  {target:'[onclick="navigate(\'accounts\')"]',title:'Contas',desc:'Gerencie contas bancárias, poupança, carteira e investimentos. Veja o saldo e movimentações de cada uma.',placement:'right'},
+  {target:'[onclick="navigate(\'cards\')"]',title:'Cartões',desc:'Cadastre cartões de crédito, acompanhe o limite utilizado, datas de fechamento e vencimento da fatura.',placement:'right'},
+  {target:'[onclick="navigate(\'goals\')"]',title:'Metas Financeiras',desc:'Crie metas como reserva de emergência ou viagem. Acompanhe o progresso com barras visuais e prazos.',placement:'right'},
+  {target:'[onclick="navigate(\'reports\')"]',title:'Relatórios',desc:'Analise gastos por categoria, compare meses e exporte em CSV ou JSON para backup e sincronização entre dispositivos.',placement:'right'},
+  {target:'[onclick="navigate(\'alerts\')"]',title:'Alertas',desc:'O Fluxa monitora automaticamente: limite do cartão, metas vencendo e gastos acima do normal.',placement:'right'},
+  {target:'button.btn-primary',title:'Nova Transação',desc:'Sempre disponível na barra superior para registrar uma receita ou despesa de qualquer página.',placement:'bottom'},
+  {target:'[onclick="navigate(\'settings\')"]',title:'Configurações & Importar',desc:'Personalize o perfil, escolha a moeda, gerencie categorias, faça backup JSON ou importe dados de outro dispositivo.',placement:'right'}
 ];
 
 var _tourStep=0,_tourUserName='';
@@ -2116,7 +2110,7 @@ function renderTourStep(){
     document.getElementById('tour-step-label').textContent='Passo '+(_tourStep+1)+' de '+total;
     document.getElementById('tour-title').textContent=step.title;
     document.getElementById('tour-desc').textContent=step.desc;
-    document.getElementById('tour-btn-next').textContent=_tourStep===total-1?'Finalizar!':'Proximo';
+    document.getElementById('tour-btn-next').textContent=_tourStep===total-1?'Finalizar!':'Próximo';
     // dots
     var dots=document.getElementById('tour-dots');dots.innerHTML='';
     for(var i=0;i<total;i++){var d=document.createElement('div');d.className='tour-dot'+(i===_tourStep?' active':'');dots.appendChild(d);}
