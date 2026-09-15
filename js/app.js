@@ -2053,6 +2053,16 @@ var _tourStep=0,_tourUserName='';
 
 function checkFirstVisit(){
   if(!localStorage.getItem('fluxa_tour_done')) setTimeout(showWelcome,700);
+  else if(!localStorage.getItem('fluxa_updates_seen_v2')) setTimeout(showProductUpdates,900);
+}
+function showProductUpdates(){
+  var overlay=document.getElementById('product-updates-overlay');
+  if(overlay) overlay.classList.add('visible');
+}
+function closeProductUpdates(){
+  var overlay=document.getElementById('product-updates-overlay');
+  if(overlay) overlay.classList.remove('visible');
+  localStorage.setItem('fluxa_updates_seen_v2','1');
 }
 function restartTour(){
   localStorage.removeItem('fluxa_tour_done');
@@ -2080,6 +2090,7 @@ function skipWelcome(){
   if(name){state.settings.name=name;save();}
   var o=document.getElementById('welcome-overlay');if(o)o.classList.remove('visible');
   localStorage.setItem('fluxa_tour_done','1');
+  if(!localStorage.getItem('fluxa_updates_seen_v2')) setTimeout(showProductUpdates,350);
 }
 
 function startTour(){
@@ -2188,6 +2199,7 @@ function showTourComplete(){
 function closeTourComplete(){
   document.getElementById('tour-complete-overlay').classList.remove('visible');
   navigate('dashboard');
+  if(!localStorage.getItem('fluxa_updates_seen_v2')) setTimeout(showProductUpdates,350);
 }
 
 var deferredPwaPrompt = null;
@@ -2278,6 +2290,9 @@ function installPwa() {
 document.addEventListener('DOMContentLoaded',function(){
   var inp=document.getElementById('welcome-name-input');
   if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter')startWithName();});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.getElementById('product-updates-overlay')?.classList.contains('visible')) closeProductUpdates();
+  });
   initPwaInstallPrompt();
 });
 

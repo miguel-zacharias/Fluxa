@@ -297,6 +297,7 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-ghost" onclick="exportJSON()"><i class="ti ti-download"></i>Backup JSON</button>
               <button class="btn btn-ghost" onclick="triggerImport()"><i class="ti ti-upload"></i>Importar JSON</button>
+              <button class="btn btn-ghost" onclick="showProductUpdates()"><i class="ti ti-sparkles"></i>Ver novidades</button>
               <button class="btn btn-ghost" onclick="restartTour()"><i class="ti ti-player-play"></i>Ver Tutorial</button>
               <button class="btn btn-danger" onclick="clearAllData()"><i class="ti ti-trash"></i>Limpar Tudo</button>
             </div>
@@ -724,6 +725,42 @@
     <div class="welcome-title" id="tour-complete-title">Tudo pronto!</div>
     <div class="welcome-sub">Agora você conhece o Fluxa. Comece adicionando sua primeira transação e tome controle das suas finanças.</div>
     <button class="welcome-start-btn" onclick="closeTourComplete()">Ir para o Dashboard ✓</button>
+  </div>
+</div>
+
+<!-- ═══════════ PRODUCT UPDATES ═══════════ -->
+<div class="updates-overlay" id="product-updates-overlay" role="dialog" aria-modal="true" aria-labelledby="product-updates-title">
+  <div class="updates-modal">
+    <button class="updates-close" onclick="closeProductUpdates()" aria-label="Fechar novidades"><i class="ti ti-x"></i></button>
+    <div class="updates-hero">
+      <span class="updates-icon"><i class="ti ti-sparkles"></i></span>
+      <div class="updates-kicker">Novidades do Fluxa</div>
+      <h2 id="product-updates-title">Mais controle para suas finanças</h2>
+      <p>Confira as melhorias que deixam sua rotina financeira mais simples, clara e completa.</p>
+    </div>
+    <div class="updates-list">
+      <div class="update-item">
+        <span class="update-item-icon"><i class="ti ti-receipt"></i></span>
+        <div><strong>Fatura do cartão mais fácil de acompanhar</strong><p>Veja o valor pendente, escolha a conta e pague a fatura para liberar seu limite.</p></div>
+      </div>
+      <div class="update-item">
+        <span class="update-item-icon"><i class="ti ti-arrows-exchange"></i></span>
+        <div><strong>Saldo sempre alinhado com seus pagamentos</strong><p>Compras no débito e contas pagas agora refletem corretamente no saldo da conta.</p></div>
+      </div>
+      <div class="update-item">
+        <span class="update-item-icon"><i class="ti ti-calendar-repeat"></i></span>
+        <div><strong>Assinaturas e contas mensais organizadas</strong><p>Acompanhe vencimentos, pagamentos e histórico mensal sem lançamentos duplicados.</p></div>
+      </div>
+      <div class="update-item">
+        <span class="update-item-icon"><i class="ti ti-shield-check"></i></span>
+        <div><strong>Mais segurança para seus lançamentos</strong><p>O Fluxa ajuda a evitar pagamentos repetidos e avisa quando falta uma conta ou cartão.</p></div>
+      </div>
+      <div class="update-item">
+        <span class="update-item-icon"><i class="ti ti-device-floppy"></i></span>
+        <div><strong>Backup mais completo</strong><p>Exporte e importe seus dados com contas, cartões, assinaturas e contas mensais.</p></div>
+      </div>
+    </div>
+    <button class="btn btn-primary updates-action" onclick="closeProductUpdates()">Começar a usar <i class="ti ti-arrow-right"></i></button>
   </div>
 </div>
 </body>
