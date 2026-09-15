@@ -18,8 +18,13 @@
 
 <div id="pwa-banner" class="pwa-banner" style="display:none">
   <div class="pwa-banner-content">
-    <div>
-      <strong>Adicionar à Tela Inicial</strong>
+    <div class="pwa-banner-info">
+      <div class="pwa-banner-header">
+        <div>
+          <strong>Adicionar à Tela Inicial</strong>
+        </div>
+        <button class="pwa-banner-close" onclick="dismissPwaBanner()" aria-label="Fechar">×</button>
+      </div>
       <p id="pwa-banner-text">Abra o app mais rápido a partir da tela inicial.</p>
     </div>
     <div class="pwa-banner-actions">
@@ -480,20 +485,44 @@ svg text { font-family: system-ui; }
 }
 .pwa-banner-content {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(20,20,20,0.96);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+}
+.pwa-banner-info {
+  flex: 1;
+}
+.pwa-banner-header {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(20,20,20,0.95);
-  border: 1px solid rgba(255,255,255,0.08);
+}
+.pwa-banner-header strong {
+  font-size: 14px;
+}
+.pwa-banner-close {
+  background: transparent;
+  color: var(--text2);
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.pwa-banner-close:hover {
+  color: var(--text);
 }
 .pwa-banner-content p {
-  margin: 6px 0 0;
+  margin: 10px 0 0;
   color: var(--text2);
   font-size: 13px;
-  line-height: 1.4;
-  max-width: 260px;
+  line-height: 1.6;
 }
 .pwa-banner-actions {
   display: flex;
@@ -690,9 +719,9 @@ svg text { font-family: system-ui; }
 
       <!-- MONTHLY BILLS -->
       <div class="page" id="page-monthlybills">
-        <div class="page-header">
-          <h2>Contas Mensais</h2>
-          <button class="btn btn-primary" onclick="openMonthlyBillModal()"><i class="ti ti-plus"></i><span class="btn-label">Nova Conta</span></button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div></div>
+          <button class="btn btn-primary" onclick="openMonthlyBillModal()"><i class="ti ti-plus"></i>Nova Conta</button>
         </div>
         <div class="content-section">
           <div id="monthlybills-list">
@@ -778,7 +807,7 @@ svg text { font-family: system-ui; }
     </div>
     
     <footer class="footer">
-      MGV Group — Todos os direitos reservados, <span id="footer-year"></span>
+      Miguel Zacharias | MGV Group — Todos os direitos reservados, <span id="footer-year"></span>
     </footer>
   </div>
 </div>
@@ -838,7 +867,7 @@ svg text { font-family: system-ui; }
       </div>
       <div class="form-group">
         <label class="form-label">Cartão</label>
-        <select class="select" id="tx-card-modal"></select>
+        <select class="select" id="tx-card-modal" onchange="updateTransactionCardType()"></select>
       </div>
     </div>
     <div class="form-group" id="tx-account-row">
@@ -874,6 +903,8 @@ svg text { font-family: system-ui; }
   </div>
 </div>
 
+<datalist id="bank-suggestions"></datalist>
+
 <!-- ACCOUNT MODAL -->
 <div class="modal-overlay" id="modal-account">
   <div class="modal">
@@ -881,7 +912,7 @@ svg text { font-family: system-ui; }
       Nova Conta
       <button class="btn btn-ghost" onclick="closeModal('modal-account')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
-    <div class="form-group"><label class="form-label">Nome</label><input class="input" id="acc-name" placeholder="Ex: Banco Inter"></div>
+    <div class="form-group"><label class="form-label">Apelido da conta (opcional)</label><input class="input" id="acc-name" placeholder="Ex: Principal, Reserva, Pagamentos"></div>
     <div class="form-group"><label class="form-label">Tipo</label>
       <select class="select" id="acc-type">
         <option value="checking">Conta Corrente</option>
@@ -891,17 +922,10 @@ svg text { font-family: system-ui; }
         <option value="investment">Investimentos</option>
       </select>
     </div>
-    <div class="form-group"><label class="form-label">Saldo Inicial (R$)</label><input class="input" id="acc-balance" type="number" placeholder="0,00" step="0.01"></div>
-    <div class="form-group"><label class="form-label">Cor</label>
-      <div style="display:flex;gap:8px" id="acc-colors">
-        <div style="width:28px;height:28px;border-radius:6px;background:#3b82f6;cursor:pointer;border:2px solid white" onclick="selectColor('#3b82f6',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#10b981;cursor:pointer" onclick="selectColor('#10b981',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#8b5cf6;cursor:pointer" onclick="selectColor('#8b5cf6',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#f59e0b;cursor:pointer" onclick="selectColor('#f59e0b',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#ef4444;cursor:pointer" onclick="selectColor('#ef4444',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#ec4899;cursor:pointer" onclick="selectColor('#ec4899',this)"></div>
-      </div>
+    <div class="form-group"><label class="form-label">Banco</label>
+      <input class="input" id="acc-bank" list="bank-suggestions" placeholder="Selecione ou digite o banco" oninput="applyBankColorToAccount(this.value)">
     </div>
+    <div class="form-group"><label class="form-label">Saldo Inicial (R$)</label><input class="input" id="acc-balance" type="number" placeholder="0,00" step="0.01"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-ghost" onclick="closeModal('modal-account')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveAccount()"><i class="ti ti-check"></i>Salvar</button>
@@ -913,17 +937,28 @@ svg text { font-family: system-ui; }
 <div class="modal-overlay" id="modal-card">
   <div class="modal">
     <div class="modal-title">
-      Novo Cartão
+      Seu novo Cartão
       <button class="btn btn-ghost" onclick="closeModal('modal-card')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
     <div class="form-group"><label class="form-label">Nome do Cartão</label><input class="input" id="card-name" placeholder="Ex: Nubank Roxo"></div>
     <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Últimos 4 dígitos</label><input class="input" id="card-digits" maxlength="4" placeholder="0000"></div>
-      <div class="form-group"><label class="form-label">Limite (R$)</label><input class="input" id="card-limit" type="number" placeholder="5000"></div>
+      <div class="form-group" id="card-limit-row"><label class="form-label">Limite (R$)</label><input class="input" id="card-limit" type="number" placeholder="5000"></div>
     </div>
     <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Fechamento (dia)</label><input class="input" id="card-close" type="number" min="1" max="31" placeholder="10"></div>
-      <div class="form-group"><label class="form-label">Vencimento (dia)</label><input class="input" id="card-due" type="number" min="1" max="31" placeholder="20"></div>
+      <div class="form-group" id="card-due-row"><label class="form-label">Vencimento (dia)</label><input class="input" id="card-due" type="number" min="1" max="31" placeholder="20"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Tipo</label>
+      <select class="select" id="card-type" onchange="toggleCardDueRow()">
+        <option value="credit_card">Cartão Crédito</option>
+        <option value="debit">Cartão Débito</option>
+      </select>
+    </div>
+    <input type="hidden" id="card-bank">
+    <div class="form-group"><label class="form-label">Conta Vinculada</label>
+      <select class="select" id="card-account" onchange="syncCardBankFromAccount()"></select>
+      <div id="card-bank-readout" style="margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--input-bg);border:1px solid var(--border2);color:var(--text2);font-size:12px;min-height:38px;display:flex;align-items:center;">Banco: —</div>
     </div>
     <div class="form-group"><label class="form-label">Bandeira</label>
       <select class="select" id="card-brand">
@@ -931,14 +966,8 @@ svg text { font-family: system-ui; }
         <option value="elo">Elo</option><option value="amex">American Express</option>
       </select>
     </div>
-    <div class="form-group"><label class="form-label">Cor</label>
-      <div style="display:flex;gap:8px" id="card-colors">
-        <div style="width:28px;height:28px;border-radius:6px;background:#7c3aed;cursor:pointer;border:2px solid white" onclick="selectCardColor('#7c3aed',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#1d4ed8;cursor:pointer" onclick="selectCardColor('#1d4ed8',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#065f46;cursor:pointer" onclick="selectCardColor('#065f46',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#1e3a5f;cursor:pointer" onclick="selectCardColor('#1e3a5f',this)"></div>
-        <div style="width:28px;height:28px;border-radius:6px;background:#7f1d1d;cursor:pointer" onclick="selectCardColor('#7f1d1d',this)"></div>
-      </div>
+    <div class="form-group"><label class="form-label">Cor do Cartão</label>
+      <div style="display:flex;align-items:center;min-height:52px;max-width:56%;padding:8px 10px;border:1px solid var(--border2);border-radius:12px;background:var(--input-bg);box-sizing:border-box;" id="card-colors"></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-ghost" onclick="closeModal('modal-card')">Cancelar</button>
@@ -951,7 +980,7 @@ svg text { font-family: system-ui; }
 <div class="modal-overlay" id="modal-goal">
   <div class="modal">
     <div class="modal-title">
-      <span id="goal-modal-title">Nova Meta</span>
+      <span id="goal-modal-title">Uau! Uma Nova Meta?</span>
       <button class="btn btn-ghost" onclick="closeModal('modal-goal')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
     <div class="form-group"><label class="form-label">Nome da Meta</label><input class="input" id="goal-name" placeholder="Ex: Reserva de Emergência"></div>
@@ -987,7 +1016,7 @@ svg text { font-family: system-ui; }
 <div class="modal-overlay" id="modal-subscription">
   <div class="modal">
     <div class="modal-title">
-      <span id="subscription-modal-title">Nova Assinatura</span>
+      <span id="subscription-modal-title">Uma nova Assinatura?</span>
       <button class="btn btn-ghost" onclick="closeModal('modal-subscription')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
     <div class="form-group"><label class="form-label">Nome do Serviço</label><input class="input" id="sub-name" placeholder="Ex: Netflix, Spotify, Aluguel"></div>
@@ -1042,6 +1071,12 @@ svg text { font-family: system-ui; }
         <option value="">Selecionar cartão</option>
       </select>
     </div>
+    <div class="form-group"><label class="form-label">Conta para pagamento</label>
+      <select class="select" id="mb-account-id">
+        <option value="">Selecionar conta</option>
+      </select>
+      <div style="margin-top:6px;font-size:11px;color:var(--text3)">Usada quando não houver cartão vinculado. Cartões de débito usam automaticamente a conta vinculada.</div>
+    </div>
     <div class="form-group"><label class="form-label">Categoria</label>
       <select class="select" id="mb-category">
         <option value="Moradia">Moradia</option>
@@ -1075,6 +1110,76 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
 const CATS_DEFAULT = ['Alimentação','Transporte','Moradia','Saúde','Educação','Lazer','Streaming','Compras','Investimentos','Salário','Freelance','Outros'];
 const CAT_COLORS = {'Alimentação':'#f59e0b','Transporte':'#3b82f6','Moradia':'#8b5cf6','Saúde':'#10b981','Educação':'#06b6d4','Lazer':'#f97316','Streaming':'#ec4899','Compras':'#a855f7','Investimentos':'#22c55e','Salário':'#14b8a6','Freelance':'#eab308','Outros':'#94a3b8'};
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const ACCOUNT_BANKS = [
+  { value: 'nubank', label: 'Nubank' },
+  { value: 'itau', label: 'Itaú' },
+  { value: 'bradesco', label: 'Bradesco' },
+  { value: 'santander', label: 'Santander' },
+  { value: 'bb', label: 'Banco do Brasil' },
+  { value: 'caixa', label: 'Caixa' },
+  { value: 'inter', label: 'Inter' },
+  { value: 'c6', label: 'C6 Bank' },
+  { value: 'btg', label: 'BTG Pactual' },
+  { value: 'safra', label: 'Banco Safra' },
+  { value: 'sicredi', label: 'Sicredi' },
+  { value: 'sicoob', label: 'Sicoob' },
+  { value: 'banco-original', label: 'Banco Original' },
+  { value: 'banco-pan', label: 'Banco Pan' },
+  { value: 'pagbank', label: 'PagBank' },
+  { value: 'mercado-pago', label: 'Mercado Pago' },
+  { value: 'bmg', label: 'Banco BMG' },
+  { value: 'bnb', label: 'Banco Nordeste (BNB)' },
+  { value: 'banrisul', label: 'Banrisul' },
+  { value: 'xp-investimentos', label: 'XP Investimentos' },
+  { value: 'neon', label: 'Neon' },
+  { value: 'picpay', label: 'PicPay' },
+  { value: 'next', label: 'Next' },
+  { value: 'hsbc', label: 'HSBC' },
+  { value: 'mercantil', label: 'Mercantil' },
+  { value: 'sofis', label: 'Sofisa' },
+  { value: 'american-express', label: 'American Express' }
+];
+const BANK_COLOR_MAP = {
+  nubank: '#8b5cf6',
+  itau: '#f97316',
+  bradesco: '#dc2626',
+  santander: '#ef4444',
+  bb: '#facc15',
+  caixa: '#2563eb',
+  inter: '#f97316',
+  c6: '#111827',
+  'american-express': '#1f2937',
+  btg: '#1d4ed8',
+  safra: '#1e3a8a',
+  sicredi: '#22c55e',
+  sicoob: '#16a34a',
+  'banco-original': '#22c55e',
+  'banco-pan': '#2563eb',
+  pagbank: '#22c55e',
+  'mercado-pago': '#2563eb',
+  bmg: '#f59e0b',
+  bnb: '#dc2626',
+  banrisul: '#2563eb',
+  'xp-investimentos': '#111827',
+  neon: '#22d3ee',
+  picpay: '#22c55e',
+  next: '#ec4899',
+  hsbc: '#0369a1',
+  mercantil: '#7f1d1d',
+  sofis: '#c026d3',
+  'custom-bank': '#64748b'
+};
+const ACCOUNT_COLOR_PALETTE = ['#2563eb','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#14b8a6','#0ea5e9','#f97316','#22c55e','#7c3aed','#0f172a'];
+const GOAL_MODAL_NEW_TITLE = 'Uau! Uma Nova Meta?';
+const CARD_COLOR_PALETTE = [
+  ['#f8fafc','#e2e8f0','#cbd5e1','#94a3b8','#64748b','#334155','#1f2937','#000000'],
+  ['#fff1f2','#fecdd3','#fda4af','#fb7185','#f43f5e','#be123c','#7f1d1d','#4c0519'],
+  ['#fff7ed','#fed7aa','#fdba74','#fb923c','#f97316','#c2410c','#9a4d12','#7c2d12'],
+  ['#fefce8','#fef3c7','#fde68a','#facc15','#fbbf24','#f59e0b','#d97706','#b45309'],
+  ['#f0fdf4','#dcfce7','#bbf7d0','#86efac','#4ade80','#22c55e','#15803d','#14532d'],
+  ['#eff6ff','#dbeafe','#bfdbfe','#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8'],
+  ['#faf5ff','#f3e8ff','#e9d5ff','#c4b5fd','#a78bfa','#8b5cf6','#6d28d9','#4c1d95']
+];
 
 let state = {
   transactions: [],
@@ -1089,7 +1194,8 @@ let state = {
   selectedGoalId: null,
   txType: 'expense',
   accColor: '#3b82f6',
-  cardColor: '#7c3aed'
+  cardColor: '#7c3aed',
+  cardColorCustomized: false
 };
 
 function load() {
@@ -1140,6 +1246,14 @@ function normalizeMethod(method) {
   return method==='cartao_debito' ? 'debit' : method==='cartao_credito' ? 'credit_card' : method==='transferencia' ? 'bank_transfer' : method;
 }
 
+function toggleCardDueRow(){
+  const type = document.getElementById('card-type')?.value;
+  const dueRow = document.getElementById('card-due-row');
+  const limitRow = document.getElementById('card-limit-row');
+  if(dueRow) dueRow.style.display = type==='debit' ? 'none' : 'block';
+  if(limitRow) limitRow.style.display = type==='debit' ? 'none' : 'block';
+}
+
 function formatMethodLabel(method) {
   const labels = {
     pix: 'PIX',
@@ -1165,6 +1279,12 @@ function isTransfer(tx) {
 }
 
 function getCardUsed(card) {
+  const type = card.type || 'credit_card';
+  if(type==='debit') {
+    return Number(state.transactions
+      .filter(t => t.type==='expense' && t.method==='debit' && t.cardId===card.id)
+      .reduce((s,t) => s + t.value, 0).toFixed(2));
+  }
   const purchases = state.transactions
     .filter(t => isCreditCardPurchase(t) && t.cardId===card.id)
     .reduce((s,t) => s + t.value, 0);
@@ -1172,6 +1292,17 @@ function getCardUsed(card) {
     .filter(t => isCardPayment(t) && t.cardId===card.id)
     .reduce((s,t) => s + t.value, 0);
   return Number(Math.max(0, purchases - payments).toFixed(2));
+}
+
+function shouldConfirmCardLimit(cardId, value, isEditingTx) {
+  if (!cardId || !value || value <= 0) return false;
+  const card = state.cards.find(c => c.id === cardId);
+  if (!card || card.type !== 'credit_card' || !Number(card.limit)) return false;
+
+  const currentTx = isEditingTx ? state.transactions.find(t => t.id === isEditingTx) : null;
+  const currentValue = (currentTx && currentTx.cardId === cardId && currentTx.type === 'expense' && currentTx.method === 'credit_card') ? currentTx.value : 0;
+  const usedWithoutCurrent = Math.max(0, getCardUsed(card) - currentValue);
+  return usedWithoutCurrent + Number(value) > Number(card.limit);
 }
 
 function getAccountBalance(account) {
@@ -1219,13 +1350,29 @@ function updateTransactionFields() {
   if(method==='bank_transfer') {
     transferRow.style.display='grid';
     accountRow.style.display='none';
+  } else if(method==='credit_card' || method==='debit') {
+    transferRow.style.display='none';
+    accountRow.style.display='none';
   } else {
     transferRow.style.display='none';
     accountRow.style.display='block';
   }
-  if(statusSel && method==='credit_card' && !statusSel.value) {
-    statusSel.value='pending';
+  if(statusSel && !statusSel.value) {
+    statusSel.value = method==='credit_card' ? 'pending' : 'paid';
   }
+}
+
+function updateTransactionCardType() {
+  const cardId = document.getElementById('tx-card-modal').value;
+  if(!cardId) return;
+  const card = state.cards.find(c => c.id===cardId);
+  if(!card) return;
+  if(card.type === 'debit') {
+    document.getElementById('tx-method').value = 'debit';
+  } else if(card.type === 'credit_card') {
+    document.getElementById('tx-method').value = 'credit_card';
+  }
+  updateTransactionFields();
 }
 
 function generateInstallmentTransactions(tx) {
@@ -1254,10 +1401,20 @@ function syncRecurringTransactions() {
     const dueDay = Number(sub.dueDay || 1);
     let dueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
     if(dueDate < new Date(today.getFullYear(), today.getMonth(), 1)) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
-    const exists = state.transactions.some(t => t.subscriptionId===sub.id && t.date===fmt(dueDate));
-    if(!exists) {
-      const method = sub.cardId ? 'credit_card' : 'bank_transfer';
-      const tx = {
+    const card = state.cards.find(c => c.id===sub.cardId);
+    const method = card?.type==='debit' ? 'debit' : sub.cardId ? 'credit_card' : 'bank_transfer';
+    const recurringTx = state.transactions.find(t => t.subscriptionId===sub.id && t.date===fmt(dueDate));
+    if(recurringTx) {
+      recurringTx.desc = sub.name;
+      recurringTx.value = sub.value;
+      recurringTx.cat = sub.category;
+      recurringTx.method = method;
+      recurringTx.cardId = sub.cardId || '';
+      recurringTx.accountId = card?.type==='debit' ? (card.accountId || '') : (sub.cardId ? '' : (sub.accountId || ''));
+      recurringTx.fromAccountId = card?.type==='debit' || sub.cardId ? '' : (sub.accountId || '');
+      recurringTx.tags = ['assinatura'];
+    } else {
+      state.transactions.push({
         id: uid(),
         type: 'expense',
         desc: sub.name,
@@ -1266,15 +1423,14 @@ function syncRecurringTransactions() {
         cat: sub.category,
         method,
         cardId: sub.cardId || '',
-        accountId: sub.cardId ? '' : (sub.accountId || ''),
-        fromAccountId: sub.cardId ? '' : (sub.accountId || ''),
+        accountId: card?.type==='debit' ? (card.accountId || '') : (sub.cardId ? '' : (sub.accountId || '')),
+        fromAccountId: card?.type==='debit' || sub.cardId ? '' : (sub.accountId || ''),
         toAccountId: '',
         tags: ['assinatura'],
         status: 'pending',
         subscriptionId: sub.id,
         installment: null
-      };
-      state.transactions.push(tx);
+      });
       hasNewTx = true;
     }
   });
@@ -1545,7 +1701,7 @@ function getAlerts() {
   const expense=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.value,0);
   const income=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.value,0);
   if(expense>income*0.9&&income>0) alerts.push({icon:'ti-alert-triangle',color:'#ef4444',title:'Gastos Altos',msg:`Despesas (${fmtCur(expense)}) são ${(expense/income*100).toFixed(0)}% da receita`});
-  state.cards.forEach(c=>{ const pct=c.used/c.limit; if(pct>=0.8) alerts.push({icon:'ti-credit-card',color:'#f59e0b',title:'Limite do Cartão',msg:`${c.name} está em ${(pct*100).toFixed(0)}% do limite`}); });
+  state.cards.forEach(c=>{ if(c.type==='debit') return; const used = getCardUsed(c); const pct = c.limit ? used/c.limit : 0; if(pct>=0.8) alerts.push({icon:'ti-credit-card',color:'#f59e0b',title:'Limite do Cartão',msg:`${c.name} está em ${(pct*100).toFixed(0)}% do limite`}); });
   state.goals.forEach(g=>{ if(g.current>=g.target) alerts.push({icon:'ti-trophy',color:'#10b981',title:'Meta Concluída!',msg:`Parabéns! Você atingiu a meta: ${g.name}`}); });
   state.goals.forEach(g=>{ const dl=new Date(g.deadline); const diff=Math.round((dl-now)/86400000); if(diff>=0&&diff<=30&&g.current<g.target) alerts.push({icon:'ti-calendar',color:'#8b5cf6',title:'Prazo se Aproximando',msg:`Meta "${g.name}" vence em ${diff} dias`}); });
   state.subscriptions.forEach(s=>{ const nextDate=new Date(s.nextDate); const diff=Math.round((nextDate-now)/86400000); if(diff>=0&&diff<=7) alerts.push({icon:'ti-calendar-event',color:'#f59e0b',title:'Assinatura Próxima',msg:`"${s.name}" vence em ${diff} dias (${fmtCur(s.value)})`}); });
@@ -1651,12 +1807,18 @@ function renderCards() {
   if(!state.cards.length){el.innerHTML='<div class="empty-state"><i class="ti ti-credit-card-off"></i><p>Nenhum cartão cadastrado</p></div>';return;}
   el.innerHTML=state.cards.map(c=>{
     const used = getCardUsed(c);
-    const pct=Math.min(100, used/c.limit*100);
+    const account = state.accounts.find(a => a.id===c.accountId);
+    const accountName = account?.name || 'Nenhuma conta';
+    const accountBalance = account ? getAccountBalance(account) : 0;
+    const isDebit = c.type==='debit';
+    const available = isDebit ? accountBalance - used : (c.limit - used);
+    const pct = isDebit ? 0 : Math.min(100, c.limit?used/c.limit*100:0);
+    const typeLabel = formatMethodLabel(c.type || 'credit_card');
     return `<div class="card">
       <div style="background:${c.color||'#7c3aed'};border-radius:12px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
         <div style="position:absolute;right:10px;bottom:-30px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:12px;letter-spacing:1px">${(c.brand||'').toUpperCase()}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:12px;letter-spacing:1px">${(c.brand||'').toUpperCase()} • ${typeLabel}</div>
         <div style="font-size:14px;color:rgba(255,255,255,0.8);letter-spacing:4px;margin-bottom:16px">•••• •••• •••• ${c.digits||'0000'}</div>
         <div style="display:flex;justify-content:space-between;align-items:flex-end">
           <div><div style="font-size:10px;color:rgba(255,255,255,0.5)">TITULAR</div><div style="font-size:13px;color:white;font-weight:600">${state.settings.name||'Usuário'}</div></div>
@@ -1664,17 +1826,17 @@ function renderCards() {
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <div><div style="font-size:11px;color:var(--text3)">Limite Total</div><div style="font-size:15px;font-weight:600">${fmtCur(c.limit)}</div></div>
-        <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">Utilizado</div><div style="font-size:15px;font-weight:600;color:${pct>80?'var(--red2)':pct>50?'var(--yellow)':'var(--green2)'}">${fmtCur(used)}</div></div>
+        <div><div style="font-size:11px;color:var(--text3)">${isDebit ? 'Saldo da conta' : 'Limite Total'}</div><div style="font-size:15px;font-weight:600">${fmtCur(isDebit ? accountBalance : c.limit)}</div></div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">Utilizado</div><div style="font-size:15px;font-weight:600;color:${used > (isDebit ? accountBalance : c.limit) ? 'var(--red2)' : used > (isDebit ? accountBalance * 0.8 : c.limit * 0.8) ? 'var(--yellow)' : 'var(--green2)'}">${fmtCur(used)}</div></div>
       </div>
-      <div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--green)'}"></div></div>
+      ${isDebit ? '' : `<div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--green)'}"></div></div>`}
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:12px">
-        <span>${pct.toFixed(0)}% utilizado</span>
-        <span>Disponível: ${fmtCur(c.limit-used)}</span>
+        <span>${isDebit ? 'Despesas do cartão' : `${pct.toFixed(0)}% utilizado`}</span>
+        <span>Disponível: ${fmtCur(available)}</span>
       </div>
       <div style="display:flex;gap:8px;font-size:11px;color:var(--text3)">
-        <span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Fecha dia ${c.close}</span>
-        <span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Vence dia ${c.due}</span>
+        <span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Conta: ${accountName}</span>
+        ${isDebit ? `<span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Sem vencimento</span>` : `<span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Fecha dia ${c.close}</span><span style="background:var(--input-bg);padding:4px 8px;border-radius:6px">Vence dia ${c.due}</span>`}
       </div>
       <div style="display:flex;gap:6px;margin-top:12px">
         <button class="btn btn-ghost" onclick="editCard('${c.id}')" style="flex:1;justify-content:center"><i class="ti ti-edit"></i>Editar</button>
@@ -1809,6 +1971,7 @@ function openAddModal(id) {
       document.getElementById('tx-method').value=t.method||'pix';
       document.getElementById('tx-status').value=t.status||'paid';
       cardSel.value=t.cardId||'';
+      if(cardSel.value) updateTransactionCardType();
       accSel.value=t.accountId||'';
       if(fromAccSel) fromAccSel.value=t.fromAccountId||'';
       if(toAccSel) toAccSel.value=t.toAccountId||'';
@@ -1848,10 +2011,22 @@ function saveTransaction() {
   const value=parseFloat(document.getElementById('tx-value').value);
   const date=document.getElementById('tx-date').value;
   const cat=document.getElementById('tx-cat-modal').value;
-  const method=normalizeMethod(document.getElementById('tx-method').value);
+  let method=normalizeMethod(document.getElementById('tx-method').value);
   const status=document.getElementById('tx-status').value;
   const cardId=document.getElementById('tx-card-modal').value;
-  const accountId=document.getElementById('tx-account-modal').value;
+  let accountId=document.getElementById('tx-account-modal').value;
+  if(cardId) {
+    const card=state.cards.find(c=>c.id===cardId);
+    if(card) {
+      if(card.type==='debit') {
+        method = 'debit';
+        if(card.accountId) accountId = card.accountId;
+      } else if(card.type==='credit_card') {
+        method = 'credit_card';
+        accountId = '';
+      }
+    }
+  }
   const fromAccountId=document.getElementById('tx-from-account-modal')?.value||'';
   const toAccountId=document.getElementById('tx-to-account-modal')?.value||'';
   const installmentCurrent=parseInt(document.getElementById('tx-installment-current').value,10)||0;
@@ -1859,6 +2034,14 @@ function saveTransaction() {
   const installmentGroup=document.getElementById('tx-installment-group').value.trim();
   const tags=document.getElementById('tx-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   if(!desc||!value||!date){alert('Preencha todos os campos obrigatórios');return;}
+
+  const hasCardLimitWarning = state.txType === 'expense' && method === 'credit_card' && shouldConfirmCardLimit(cardId, value, state.editingTx);
+  if (hasCardLimitWarning) {
+    const card = state.cards.find(c => c.id === cardId);
+    const warningText = card ? `O cartão "${card.name}" ultrapassou o limite disponível (${fmtCur(Number(card.limit) - Math.max(0, getCardUsed(card) - (state.editingTx ? state.transactions.find(t => t.id === state.editingTx)?.value || 0 : 0)))} restante). Deseja cadastrar mesmo assim?` : 'O limite do cartão foi ultrapassado. Deseja cadastrar mesmo assim?';
+    if (!confirm(warningText)) return;
+  }
+
   const installment = installmentGroup && installmentCurrent && installmentTotal ? {current: installmentCurrent, total: installmentTotal, groupId: installmentGroup} : null;
   const tx = {
     id: state.editingTx || uid(),
@@ -1873,7 +2056,7 @@ function saveTransaction() {
     fromAccountId: fromAccountId||'',
     toAccountId: toAccountId||'',
     tags,
-    status: status|| (method==='credit_card' ? 'pending' : 'paid'),
+    status: status || (method==='credit_card' ? 'pending' : 'paid'),
     installment,
     subscriptionId: null,
     monthlyBillId: null
@@ -1901,30 +2084,186 @@ function deleteTransaction(id){
   }
 }
 
+function slugifyBankName(value) {
+  return (value || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function getBankColorByName(value) {
+  const normalized = slugifyBankName(value || '');
+  const bankMeta = ACCOUNT_BANKS.find(bank => bank.value === normalized || bank.label.toLowerCase() === (value || '').trim().toLowerCase());
+  if (bankMeta && BANK_COLOR_MAP[bankMeta.value]) return BANK_COLOR_MAP[bankMeta.value];
+  if (BANK_COLOR_MAP[normalized]) return BANK_COLOR_MAP[normalized];
+  return BANK_COLOR_MAP['custom-bank'];
+}
+
+function resolveBankMeta(value) {
+  const bankName = (value || '').trim();
+  if (!bankName) return { label: '', value: '', color: BANK_COLOR_MAP['custom-bank'] };
+  const exact = ACCOUNT_BANKS.find(bank => 
+    bank.value.toLowerCase() === bankName.toLowerCase() ||
+    bank.label.toLowerCase() === bankName.toLowerCase() ||
+    bank.label.toLowerCase().includes(bankName.toLowerCase()) ||
+    bankName.toLowerCase().includes(bank.label.toLowerCase())
+  );
+  if (exact) return { label: exact.label, value: exact.value, color: BANK_COLOR_MAP[exact.value] || BANK_COLOR_MAP['custom-bank'] };
+  return { label: bankName, value: slugifyBankName(bankName) || 'custom-bank', color: getBankColorByName(bankName) };
+}
+
+function populateBankSelects(){
+  const datalist = document.getElementById('bank-suggestions');
+  if (!datalist) return;
+  const usedBanks = [
+    ...state.accounts.map(a => a.bank).filter(Boolean),
+    ...state.cards.map(c => c.bank).filter(Boolean)
+  ];
+  const options = [...ACCOUNT_BANKS, ...usedBanks.map(name => ({ value: slugifyBankName(name), label: name }))]
+    .filter((bank, index, arr) => {
+      const normalized = bank.label.trim();
+      return normalized && arr.findIndex(item => item.label.trim().toLowerCase() === normalized.toLowerCase()) === index;
+    })
+    .map(bank => `<option value="${bank.label}"></option>`)
+    .join('');
+  datalist.innerHTML = options;
+}
+
+function applyBankColorToAccount(bankValue) {
+  const bankMeta = resolveBankMeta(bankValue || '');
+  const color = bankMeta.color || '#2563eb';
+  state.accColor = color;
+  const swatches = document.querySelectorAll('#acc-colors div');
+  swatches.forEach(el => {
+    const isMatch = el.style.background.toLowerCase() === color.toLowerCase();
+    el.style.border = isMatch ? '2px solid white' : '2px solid transparent';
+  });
+}
+
+function applyBankColorToCard(bankValue) {
+  if (state.cardColorCustomized) return;
+  const bankMeta = resolveBankMeta(bankValue || '');
+  const color = bankMeta.color || '#7c3aed';
+  state.cardColor = color;
+  const swatches = document.querySelectorAll('#card-colors div');
+  swatches.forEach(el => {
+    const isMatch = el.style.background.toLowerCase() === color.toLowerCase();
+    el.style.border = isMatch ? '2px solid white' : '2px solid transparent';
+  });
+}
+
+function resetCardColorSelection() {
+  state.cardColorCustomized = false;
+  state.cardColor = '#7c3aed';
+  const swatches = document.querySelectorAll('#card-colors div');
+  swatches.forEach(el => {
+    el.style.border = '2px solid transparent';
+  });
+  if (swatches[0]) swatches[0].style.border = '2px solid white';
+}
+
+function renderCardColorPalette() {
+  const container = document.getElementById('card-colors');
+  if (!container) return;
+
+  const columns = CARD_COLOR_PALETTE.map((columnColors, columnIndex) => `
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;">
+      ${columnColors.map(color => `
+        <div
+          data-color="${color.toLowerCase()}"
+          style="width:22px;height:22px;border-radius:5px;background:${color};cursor:pointer;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)"
+          onclick="selectCardColor('${color}', this)"
+        ></div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(7, 22px)';
+  container.style.gap = '5px';
+  container.style.alignItems = 'stretch';
+  container.style.justifyContent = 'flex-start';
+  container.style.minHeight = '52px';
+  container.style.width = '100%';
+  container.style.maxWidth = '56%';
+  container.innerHTML = columns;
+
+  const selectedColor = (state.cardColor || '#7c3aed').toLowerCase();
+  const matched = container.querySelector(`[data-color="${selectedColor}"]`);
+  if (matched) matched.style.border = '2px solid white';
+}
+
+function syncCardBankFromAccount() {
+  const accountSel = document.getElementById('card-account');
+  const bankHidden = document.getElementById('card-bank');
+  const bankReadout = document.getElementById('card-bank-readout');
+  const account = state.accounts.find(a => a.id === accountSel?.value) || null;
+  const resolvedBank = account ? resolveBankMeta(account.bank || '') : { label: '', value: '', color: '#7c3aed' };
+
+  if (bankHidden) bankHidden.value = account ? (account.bank || '') : '';
+  if (bankReadout) bankReadout.textContent = `Banco: ${resolvedBank.label || '—'}`;
+
+  if (account) {
+    state.cardColor = account.color || resolvedBank.color || '#7c3aed';
+    state.cardColorCustomized = false;
+    renderCardColorPalette();
+  } else if (!state.cardColorCustomized) {
+    state.cardColor = '#7c3aed';
+    renderCardColorPalette();
+  }
+}
+
 function openAccountModal(){
+  populateBankSelects();
   document.getElementById('acc-name').value='';
   document.getElementById('acc-balance').value='';
-  state.accColor='#3b82f6';
+  document.getElementById('acc-bank').value='';
+  state.accColor = '#2563eb';
   document.getElementById('modal-account').classList.add('active');
 }
 
 function selectColor(col,el){
-  state.accColor=col;
-  document.querySelectorAll('#acc-colors div').forEach(d=>d.style.border='none');
-  el.style.border='2px solid white';
+  state.accColor = col;
 }
 function selectCardColor(col,el){
-  state.cardColor=col;
-  document.querySelectorAll('#card-colors div').forEach(d=>d.style.border='none');
-  el.style.border='2px solid white';
+  state.cardColor = col;
+  state.cardColorCustomized = true;
+  document.querySelectorAll('#card-colors div').forEach(d => {
+    d.style.border = '2px solid transparent';
+  });
+  if (el) el.style.border = '2px solid white';
+}
+
+function refreshCardAccountOptions(){
+  const accountSel = document.getElementById('card-account');
+  if (!accountSel) return;
+  accountSel.innerHTML = '<option value="">Selecionar conta</option>' + state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  const currentValue = accountSel.dataset.value || '';
+  if (state.accounts.some(a => a.id === currentValue)) {
+    accountSel.value = currentValue;
+  } else {
+    accountSel.value = '';
+  }
+  delete accountSel.dataset.value;
+  syncCardBankFromAccount();
+}
+
+function getAccountTypeLabel(type) {
+  const labels = {
+    checking: 'Conta Corrente',
+    savings: 'Poupança',
+    wallet: 'Carteira',
+    cash: 'Dinheiro Físico',
+    investment: 'Investimentos'
+  };
+  return labels[type] || 'Conta';
 }
 
 function saveAccount(){
-  const name=document.getElementById('acc-name').value.trim();
+  const customName=document.getElementById('acc-name').value.trim();
   const balance=parseFloat(document.getElementById('acc-balance').value)||0;
   const type=document.getElementById('acc-type').value;
-  if(!name){alert('Digite o nome da conta');return;}
-  state.accounts.push({id:uid(),name,type,balance,color:state.accColor});
+  const bankMeta = resolveBankMeta(document.getElementById('acc-bank').value);
+  const generatedName = customName || `${bankMeta.label || 'Conta'} • ${getAccountTypeLabel(type)}`;
+  state.accColor = bankMeta.color || state.accColor || '#2563eb';
+  state.accounts.push({id:uid(),name:generatedName,type,balance,color:state.accColor, bank: bankMeta.label, bankKey: bankMeta.value});
   save(); closeModal('modal-account'); renderAccounts(); renderDashboard();
 }
 function deleteAccount(id){
@@ -1932,12 +2271,26 @@ function deleteAccount(id){
 }
 
 function openCardModal(){
+  populateBankSelects();
+  renderCardColorPalette();
+  const accountSel=document.getElementById('card-account');
+  const bankHidden=document.getElementById('card-bank');
+  if (bankHidden) bankHidden.value='';
+  if (accountSel) accountSel.innerHTML = '<option value="">Selecionar conta</option>' + state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
   document.getElementById('card-name').value='';
   document.getElementById('card-digits').value='';
   document.getElementById('card-limit').value='';
   document.getElementById('card-close').value='';
   document.getElementById('card-due').value='';
+  document.getElementById('card-type').value='credit_card';
+  if (accountSel) accountSel.value='';
+  const bankReadout = document.getElementById('card-bank-readout');
+  if (bankReadout) bankReadout.textContent = 'Banco: —';
   state.cardColor='#7c3aed';
+  state.cardColorCustomized = false;
+  renderCardColorPalette();
+  state.editingCard = null;
+  toggleCardDueRow();
   document.getElementById('modal-card').classList.add('active');
 }
 
@@ -1946,17 +2299,27 @@ function saveCard(){
   const digits=document.getElementById('card-digits').value.trim();
   const limit=parseFloat(document.getElementById('card-limit').value)||0;
   const close=parseInt(document.getElementById('card-close').value)||10;
-  const due=parseInt(document.getElementById('card-due').value)||20;
+  const type=document.getElementById('card-type').value;
+  const due = type==='debit' ? null : (parseInt(document.getElementById('card-due').value)||20);
   const brand=document.getElementById('card-brand').value;
+  const accountId=document.getElementById('card-account').value;
+  const account = state.accounts.find(a => a.id === accountId) || null;
+  const bankMeta = account ? resolveBankMeta(account.bank || '') : resolveBankMeta(document.getElementById('card-bank').value);
   if(!name){alert('Digite o nome do cartão');return;}
+  if(!accountId){alert('Selecione a conta vinculada ao cartão');return;}
+  if(!bankMeta.label){alert('A conta vinculada precisa ter um banco informado');return;}
+  const effectiveCardColor = state.cardColorCustomized ? state.cardColor : (account?.color || bankMeta.color || state.cardColor || '#7c3aed');
+  state.cardColor = effectiveCardColor;
+  state.cardColorCustomized = false;
+  const cardData = {id: state.editingCard || uid(),name,digits,limit:type==='debit'?0:limit,used:0,close:type==='debit'?null:close,due:type==='debit'?null:due,brand,color:state.cardColor,type,accountId,bank: bankMeta.label, bankKey: bankMeta.value};
   if(state.editingCard){
     const idx=state.cards.findIndex(c=>c.id===state.editingCard);
     if(idx>=0){
-      state.cards[idx] = {...state.cards[idx],name,digits,limit,close,due,brand,color:state.cardColor};
+      state.cards[idx] = {...state.cards[idx],...cardData};
     }
     state.editingCard = null;
   } else {
-    state.cards.push({id:uid(),name,digits,limit,used:0,close,due,brand,color:state.cardColor});
+    state.cards.push(cardData);
   }
   save(); closeModal('modal-card'); renderCards();
 }
@@ -1970,15 +2333,24 @@ function editCard(id){
     document.getElementById('card-digits').value=c.digits;
     document.getElementById('card-limit').value=c.limit;
     document.getElementById('card-close').value=c.close;
-    document.getElementById('card-due').value=c.due;
+    document.getElementById('card-due').value=c.due || '';
     document.getElementById('card-brand').value=c.brand;
+    document.getElementById('card-type').value=c.type||'credit_card';
+    document.getElementById('card-account').dataset.value = c.accountId || '';
+    refreshCardAccountOptions();
+    document.getElementById('card-account').value = c.accountId || '';
+    syncCardBankFromAccount();
+    state.cardColor = c.color || state.cardColor;
+    state.cardColorCustomized = c.color && c.color !== resolveBankMeta(state.accounts.find(a => a.id === c.accountId)?.bank || '').color;
+    renderCardColorPalette();
+    toggleCardDueRow();
     state.editingCard=id;
   },50);
 }
 
 function openGoalModal(){
   state.editingGoal=null;
-  document.getElementById('goal-modal-title').textContent='Nova Meta';
+  document.getElementById('goal-modal-title').textContent = GOAL_MODAL_NEW_TITLE;
   document.getElementById('goal-name').value='';
   document.getElementById('goal-emoji').value='🎯';
   document.getElementById('goal-target').value='';
@@ -2168,6 +2540,7 @@ function renderMonthlyBills(){
   empty.style.display = 'none';
   container.innerHTML = state.monthlyBills.map(bill => {
     const card = state.cards.find(c => c.id === bill.cardId);
+    const account = state.accounts.find(a => a.id === bill.accountId);
     const nextDue = getNextBillDueDate(bill.dueDay);
     const daysUntilDue = Math.ceil((nextDue - new Date()) / (1000 * 60 * 60 * 24));
     const isOverdue = daysUntilDue < 0;
@@ -2180,7 +2553,7 @@ function renderMonthlyBills(){
             <i class="ti ti-calendar-due" style="color:${bill.status === 'active' ? '#3b82f6' : '#94a3b8'}"></i>
             <div>
               <h4 style="margin:0;font-size:16px">${bill.name}</h4>
-              <small style="color:var(--text2)">${bill.category} • ${card ? card.name : 'Nenhum cartão'}</small>
+              <small style="color:var(--text2)">${bill.category} • ${card ? card.name : account ? account.name : 'Nenhum cartão'}</small>
             </div>
           </div>
           <div class="card-actions">
@@ -2253,11 +2626,15 @@ function openMonthlyBillModal(){
   const cardSelect = document.getElementById('mb-card-id');
   cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
     state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const accountSelect = document.getElementById('mb-account-id');
+  accountSelect.innerHTML = '<option value="">Selecionar conta</option>' +
+    state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
   
   document.getElementById('mb-name').value = '';
   document.getElementById('mb-value').value = '';
   document.getElementById('mb-due-day').value = '1';
   document.getElementById('mb-card-id').value = '';
+  document.getElementById('mb-account-id').value = '';
   document.getElementById('mb-category').value = 'Moradia';
   document.getElementById('mb-status').value = 'active';
   document.getElementById('mb-notes').value = '';
@@ -2276,11 +2653,15 @@ function editMonthlyBill(id){
   const cardSelect = document.getElementById('mb-card-id');
   cardSelect.innerHTML = '<option value="">Selecionar cartão</option>' + 
     state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const accountSelect = document.getElementById('mb-account-id');
+  accountSelect.innerHTML = '<option value="">Selecionar conta</option>' +
+    state.accounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
   
   document.getElementById('mb-name').value = bill.name;
   document.getElementById('mb-value').value = bill.value;
   document.getElementById('mb-due-day').value = bill.dueDay;
   document.getElementById('mb-card-id').value = bill.cardId || '';
+  document.getElementById('mb-account-id').value = bill.accountId || '';
   document.getElementById('mb-category').value = bill.category;
   document.getElementById('mb-status').value = bill.status;
   document.getElementById('mb-notes').value = bill.notes || '';
@@ -2293,6 +2674,7 @@ function saveMonthlyBill(){
   const value = parseFloat(document.getElementById('mb-value').value);
   const dueDay = parseInt(document.getElementById('mb-due-day').value);
   const cardId = document.getElementById('mb-card-id').value;
+  const accountId = document.getElementById('mb-account-id').value;
   const category = document.getElementById('mb-category').value;
   const status = document.getElementById('mb-status').value;
   const notes = document.getElementById('mb-notes').value.trim();
@@ -2310,10 +2692,10 @@ function saveMonthlyBill(){
   if(state.editingMonthlyBill){
     const idx = state.monthlyBills.findIndex(b => b.id === state.editingMonthlyBill);
     if(idx >= 0){
-      state.monthlyBills[idx] = {...state.monthlyBills[idx], name, value, dueDay, cardId, category, status, notes};
+      state.monthlyBills[idx] = {...state.monthlyBills[idx], name, value, dueDay, cardId, accountId, category, status, notes};
     }
   } else {
-    const bill = {id: uid(), name, value, dueDay, cardId, category, status, notes, lastPaid: null};
+    const bill = {id: uid(), name, value, dueDay, cardId, accountId, category, status, notes, lastPaid: null};
     state.monthlyBills.push(bill);
   }
   
@@ -2336,15 +2718,31 @@ function markBillAsPaid(id){
   if(!bill) return;
   
   const today = new Date();
-  bill.lastPaid = today.toISOString().split('T')[0];
+  const paidDate = today.toISOString().split('T')[0];
+  const card = bill.cardId ? state.cards.find(c => c.id === bill.cardId) : null;
+  const paymentAccountId = card?.type === 'debit' ? (card.accountId || '') : (bill.accountId || '');
+  if(!card && !paymentAccountId){
+    alert('Selecione uma conta ou cartão antes de marcar esta conta como paga.');
+    return;
+  }
+  if(card?.type === 'debit' && !paymentAccountId){
+    alert('O cartão de débito precisa estar vinculado a uma conta.');
+    return;
+  }
+  const alreadyPaid = state.transactions.some(t => t.monthlyBillId===bill.id && t.date===paidDate);
+  if(alreadyPaid) {
+    alert('Esta conta já foi marcada como paga hoje.');
+    return;
+  }
+  bill.lastPaid = paidDate;
   
-  if(bill.cardId){
+  if(card?.type === 'credit_card'){
     const tx = {
       id: uid(),
       type: 'expense',
       desc: `${bill.name} - Conta Mensal`,
       value: bill.value,
-      date: bill.lastPaid,
+      date: paidDate,
       cat: bill.category,
       method: 'credit_card',
       cardId: bill.cardId,
@@ -2364,15 +2762,15 @@ function markBillAsPaid(id){
       type: 'expense',
       desc: `${bill.name} - Conta Mensal`,
       value: bill.value,
-      date: bill.lastPaid,
+      date: paidDate,
       cat: bill.category,
-      method: 'bank_transfer',
-      cardId: '',
-      accountId: '',
+      method: card?.type === 'debit' ? 'debit' : 'bank_transfer',
+      cardId: card?.type === 'debit' ? card.id : '',
+      accountId: paymentAccountId,
       fromAccountId: '',
       toAccountId: '',
       tags: ['conta-mensal'],
-      status: 'pending',
+      status: 'paid',
       installment: null,
       subscriptionId: null,
       monthlyBillId: bill.id
@@ -2429,6 +2827,7 @@ function clearAllData(){
 }
 function closeModal(id){document.getElementById(id).classList.remove('active');}
 
+populateBankSelects();
 load();
 syncRecurringTransactions();
 if(state.settings.theme==='light'){
@@ -2746,10 +3145,10 @@ function showPwaBanner(type) {
   var text = document.getElementById('pwa-banner-text');
   if (!banner || !text) return;
   if (type === 'ios') {
-    text.innerHTML = 'Toque no botão <strong>Compartilhar</strong> e escolha <strong>Adicionar à Tela de Início</strong>.';
+    text.innerHTML = 'Toque no botão <strong>Compartilhar</strong> do Safari e escolha <strong>Adicionar à Tela de Início</strong> para salvar o Fluxa como atalho.';
     document.getElementById('pwa-install-btn').textContent = 'Entendi';
   } else {
-    text.textContent = 'Abra o app mais rápido a partir da tela inicial.';
+    text.textContent = 'Adicione o Fluxa à tela inicial para abrir o app mais rápido e sem endereço no navegador.';
     document.getElementById('pwa-install-btn').textContent = 'Adicionar';
   }
   banner.style.display = 'block';
@@ -2798,7 +3197,10 @@ function installPwa() {
     dismissPwaBanner();
     return;
   }
-  if (!deferredPwaPrompt) return;
+  if (!deferredPwaPrompt) {
+    dismissPwaBanner();
+    return;
+  }
   deferredPwaPrompt.prompt();
   deferredPwaPrompt.userChoice.then(function(choiceResult) {
     if (choiceResult.outcome === 'accepted') {
@@ -2862,13 +3264,13 @@ checkFirstVisit();
 <!-- ═══════════ WELCOME MODAL ═══════════ -->
 <div class="welcome-overlay" id="welcome-overlay">
   <div class="welcome-modal">
-    <span class="welcome-icon">💰</span>
+    <span class="welcome-icon">🙂</span>
     <div class="welcome-title">Bem-vindo ao Fluxa</div>
     <div class="welcome-sub">Seu sistema de controle financeiro pessoal.<br>Como podemos te chamar?</div>
     <label class="welcome-name-label">Seu nome</label>
     <input class="input welcome-name-input" id="welcome-name-input" placeholder="Digite seu nome..." autocomplete="off" maxlength="30">
     <button class="welcome-start-btn" onclick="startWithName()">Começar o tour →</button>
-    <button class="welcome-skip-link" onclick="skipWelcome()">Pular e ir direto ao app</button>
+    <button class="welcome-skip-link" onclick="skipWelcome()">Pular e ir direto ao seu app</button>
   </div>
 </div>
 
