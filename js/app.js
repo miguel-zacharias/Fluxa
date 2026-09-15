@@ -3,7 +3,7 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
 
 
 const CATS_DEFAULT = ['Alimentação','Transporte','Moradia','Saúde','Educação','Lazer','Streaming','Compras','Investimentos','Salário','Freelance','Outros'];
-const CAT_COLORS = {'Alimentação':'#f59e0b','Transporte':'#3b82f6','Moradia':'#8b5cf6','Saúde':'#10b981','Educação':'#06b6d4','Lazer':'#f97316','Streaming':'#ec4899','Compras':'#a855f7','Investimentos':'#22c55e','Salário':'#14b8a6','Freelance':'#eab308','Outros':'#94a3b8'};
+const CAT_COLORS = {'Alimentação':'#D6A33A','Transporte':'#9AA1A8','Moradia':'#35B779','Saúde':'#D95C5C','Educação':'#6F777F','Lazer':'#D6A33A','Streaming':'#35B779','Compras':'#D95C5C','Investimentos':'#35B779','Salário':'#9AA1A8','Freelance':'#D6A33A','Outros':'#9AA1A8'};
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const ACCOUNT_BANKS = [
   { value: 'nubank', label: 'Nubank' },
@@ -108,8 +108,23 @@ function load() {
       if(p.settings) state.settings = {...state.settings,...p.settings};
       state.version = Number(p.version || 1);
       migrateState();
+      restoreBankAndCardColors();
     }
   } catch(e){}
+}
+
+function restoreBankAndCardColors() {
+  state.accounts.forEach(account => {
+    if (account.color === '#2F80ED' && BANK_COLOR_MAP[account.bankKey]) {
+      account.color = BANK_COLOR_MAP[account.bankKey];
+    }
+  });
+  state.cards.forEach(card => {
+    if (card.color !== '#2F80ED') return;
+    const account = state.accounts.find(item => item.id === card.accountId);
+    const bankKey = card.bankKey || account?.bankKey;
+    if (bankKey && BANK_COLOR_MAP[bankKey]) card.color = BANK_COLOR_MAP[bankKey];
+  });
 }
 
 function save() {
@@ -338,9 +353,7 @@ function syncRecurringTransactions() {
   let hasNewTx = false;
   state.subscriptions.forEach(sub => {
     if(sub.status !== 'active') return;
-    const dueDay = Number(sub.dueDay || 1);
-    let dueDate = new Date(today.getFullYear(), today.getMonth(), dueDay);
-    if(dueDate < new Date(today.getFullYear(), today.getMonth(), 1)) dueDate = new Date(today.getFullYear(), today.getMonth() + 1, dueDay);
+    const dueDate = getSubscriptionNextDueDate(sub);
     const card = state.cards.find(c => c.id===sub.cardId);
     const method = card?.type==='debit' ? 'debit' : sub.cardId ? 'credit_card' : 'bank_transfer';
     const recurringPeriod = `${dueDate.getFullYear()}-${String(dueDate.getMonth()+1).padStart(2,'0')}`;
@@ -556,7 +569,7 @@ function renderLineChart() {
   const W=560,H=180,PL=40,PR=20,PT=20,PB=30;
   const iW=W-PL-PR, iH=H-PT-PB;
   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%">`;
-  svg+=`<defs><linearGradient id="gi" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient><linearGradient id="ge" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.15"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs>`;
+  svg+=`<defs><linearGradient id="gi" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#35B779" stop-opacity="0.15"/><stop offset="100%" stop-color="#35B779" stop-opacity="0"/></linearGradient><linearGradient id="ge" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D95C5C" stop-opacity="0.15"/><stop offset="100%" stop-color="#D95C5C" stop-opacity="0"/></linearGradient></defs>`;
   [0,0.25,0.5,0.75,1].forEach(v=>{
     const y=PT+iH*(1-v);
     svg+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
@@ -573,20 +586,20 @@ function renderLineChart() {
     const linePath='M'+points.map(p=>p[0]+','+p[1]).join(' L');
     return {points,areaPath,linePath};
   };
-  const {points:ip,areaPath:ia,linePath:il}=pts(incomes,'#10b981');
-  const {points:ep,areaPath:ea,linePath:el2}=pts(expenses,'#ef4444');
+  const {points:ip,areaPath:ia,linePath:il}=pts(incomes,'#35B779');
+  const {points:ep,areaPath:ea,linePath:el2}=pts(expenses,'#D95C5C');
   svg+=`<path d="${ia}" fill="url(#gi)"/>`;
   svg+=`<path d="${ea}" fill="url(#ge)"/>`;
-  svg+=`<path d="${il}" fill="none" stroke="#10b981" stroke-width="2" stroke-linejoin="round"/>`;
-  svg+=`<path d="${el2}" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round"/>`;
-  ip.forEach(([x,y])=>{ svg+=`<circle cx="${x}" cy="${y}" r="3" fill="#10b981"/>`; });
-  ep.forEach(([x,y])=>{ svg+=`<circle cx="${x}" cy="${y}" r="3" fill="#ef4444"/>`; });
+  svg+=`<path d="${il}" fill="none" stroke="#35B779" stroke-width="2" stroke-linejoin="round"/>`;
+  svg+=`<path d="${el2}" fill="none" stroke="#D95C5C" stroke-width="2" stroke-linejoin="round"/>`;
+  ip.forEach(([x,y])=>{ svg+=`<circle cx="${x}" cy="${y}" r="3" fill="#35B779"/>`; });
+  ep.forEach(([x,y])=>{ svg+=`<circle cx="${x}" cy="${y}" r="3" fill="#D95C5C"/>`; });
   months.forEach((m,i)=>{
     const x=PL+(i/(months.length-1||1))*iW;
     svg+=`<text x="${x}" y="${H-6}" text-anchor="middle" fill="var(--text3)" font-size="9">${m}</text>`;
   });
-  svg+=`<rect x="${W-110}" y="4" width="8" height="8" rx="2" fill="#10b981"/><text x="${W-98}" y="12" fill="var(--text2)" font-size="9">Receita</text>`;
-  svg+=`<rect x="${W-60}" y="4" width="8" height="8" rx="2" fill="#ef4444"/><text x="${W-48}" y="12" fill="var(--text2)" font-size="9">Despesa</text>`;
+  svg+=`<rect x="${W-110}" y="4" width="8" height="8" rx="2" fill="#35B779"/><text x="${W-98}" y="12" fill="var(--text2)" font-size="9">Receita</text>`;
+  svg+=`<rect x="${W-60}" y="4" width="8" height="8" rx="2" fill="#D95C5C"/><text x="${W-48}" y="12" fill="var(--text2)" font-size="9">Despesa</text>`;
   svg+=`</svg>`;
   el.innerHTML=svg;
 }
@@ -616,14 +629,32 @@ function renderBarChart() {
   months.forEach((m,i)=>{
     const cx=PL+i*gap+gap/2;
     const ih=incomes[i]/maxV*iH; const eh=expenses[i]/maxV*iH;
-    svg+=`<rect x="${cx-bw-2}" y="${PT+iH-ih}" width="${bw}" height="${ih}" rx="3" fill="#10b981" opacity="0.7"/>`;
-    svg+=`<rect x="${cx+2}" y="${PT+iH-eh}" width="${bw}" height="${eh}" rx="3" fill="#ef4444" opacity="0.7"/>`;
+    svg+=`<rect x="${cx-bw-2}" y="${PT+iH-ih}" width="${bw}" height="${ih}" rx="3" fill="#35B779" opacity="0.7"/>`;
+    svg+=`<rect x="${cx+2}" y="${PT+iH-eh}" width="${bw}" height="${eh}" rx="3" fill="#D95C5C" opacity="0.7"/>`;
     svg+=`<text x="${cx}" y="${H-6}" text-anchor="middle" fill="var(--text3)" font-size="9">${m}</text>`;
   });
-  svg+=`<rect x="${W-110}" y="4" width="8" height="8" rx="2" fill="#10b981" opacity="0.7"/><text x="${W-98}" y="12" fill="var(--text2)" font-size="9">Receita</text>`;
-  svg+=`<rect x="${W-60}" y="4" width="8" height="8" rx="2" fill="#ef4444" opacity="0.7"/><text x="${W-48}" y="12" fill="var(--text2)" font-size="9">Despesa</text>`;
+  svg+=`<rect x="${W-110}" y="4" width="8" height="8" rx="2" fill="#35B779" opacity="0.7"/><text x="${W-98}" y="12" fill="var(--text2)" font-size="9">Receita</text>`;
+  svg+=`<rect x="${W-60}" y="4" width="8" height="8" rx="2" fill="#D95C5C" opacity="0.7"/><text x="${W-48}" y="12" fill="var(--text2)" font-size="9">Despesa</text>`;
   svg+=`</svg>`;
   el.innerHTML=svg;
+}
+
+function getSubscriptionNextDueDate(sub) {
+  const safeSub = sub || {};
+  const dueDay = Math.max(1, Math.min(Number(safeSub.dueDay) || 1, 31));
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const currentMonthLength = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const safeCurrentDay = Math.min(dueDay, currentMonthLength);
+  const currentDue = new Date(now.getFullYear(), now.getMonth(), safeCurrentDay);
+
+  if (currentDue < todayStart) {
+    const nextMonthLength = new Date(now.getFullYear(), now.getMonth() + 2, 0).getDate();
+    const safeNextDay = Math.min(dueDay, nextMonthLength);
+    return new Date(now.getFullYear(), now.getMonth() + 1, safeNextDay);
+  }
+
+  return currentDue;
 }
 
 function renderAlertsSummary() {
@@ -643,17 +674,23 @@ function getAlerts() {
   const txs=getMonthTxs(now.getMonth(),now.getFullYear());
   const expense=txs.filter(isOperationalExpense).reduce((s,t)=>s+t.value,0);
   const income=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.value,0);
-  if(expense>income*0.9&&income>0) alerts.push({icon:'ti-alert-triangle',color:'#ef4444',title:'Gastos Altos',msg:`Despesas (${fmtCur(expense)}) são ${(expense/income*100).toFixed(0)}% da receita`});
-  state.cards.forEach(c=>{ if(c.type==='debit') return; const used = getCardUsed(c); const pct = c.limit ? used/c.limit : 0; if(pct>=0.8) alerts.push({icon:'ti-credit-card',color:'#f59e0b',title:'Limite do Cartão',msg:`${c.name} está em ${(pct*100).toFixed(0)}% do limite`}); });
-  state.goals.forEach(g=>{ if(g.current>=g.target) alerts.push({icon:'ti-trophy',color:'#10b981',title:'Meta Concluída!',msg:`Parabéns! Você atingiu a meta: ${g.name}`}); });
-  state.goals.forEach(g=>{ const dl=new Date(g.deadline); const diff=Math.round((dl-now)/86400000); if(diff>=0&&diff<=30&&g.current<g.target) alerts.push({icon:'ti-calendar',color:'#8b5cf6',title:'Prazo se Aproximando',msg:`Meta "${g.name}" vence em ${diff} dias`}); });
-  state.subscriptions.forEach(s=>{ const nextDate=new Date(s.nextDate); const diff=Math.round((nextDate-now)/86400000); if(diff>=0&&diff<=7) alerts.push({icon:'ti-calendar-event',color:'#f59e0b',title:'Assinatura Próxima',msg:`"${s.name}" vence em ${diff} dias (${fmtCur(s.value)})`}); });
+  if(expense>income*0.9&&income>0) alerts.push({icon:'ti-alert-triangle',color:'#D95C5C',title:'Gastos Altos',msg:`Despesas (${fmtCur(expense)}) são ${(expense/income*100).toFixed(0)}% da receita`});
+  state.cards.forEach(c=>{ if(c.type==='debit') return; const used = getCardUsed(c); const pct = c.limit ? used/c.limit : 0; if(pct>=0.8) alerts.push({icon:'ti-credit-card',color:'#D6A33A',title:'Limite do Cartão',msg:`${c.name} está em ${(pct*100).toFixed(0)}% do limite`}); });
+  state.goals.forEach(g=>{ if(g.current>=g.target) alerts.push({icon:'ti-trophy',color:'#35B779',title:'Meta Concluída!',msg:`Parabéns! Você atingiu a meta: ${g.name}`}); });
+  state.goals.forEach(g=>{ const dl=new Date(g.deadline); const diff=Math.round((dl-now)/86400000); if(diff>=0&&diff<=30&&g.current<g.target) alerts.push({icon:'ti-calendar',color:'#9AA1A8',title:'Prazo se Aproximando',msg:`Meta "${g.name}" vence em ${diff} dias`}); });
+  state.subscriptions.forEach(s=>{
+    if(s.status !== 'active') return;
+    const nextDate = getSubscriptionNextDueDate(s);
+    const diff = Math.round((nextDate - now) / 86400000);
+    if(diff >= 0 && diff <= 7) alerts.push({icon:'ti-calendar-event',color:'#D6A33A',title:'Assinatura Próxima',msg:`"${s.name}" vence em ${diff} dias (${fmtCur(s.value)})`});
+    else if(diff < 0) alerts.push({icon:'ti-alert-triangle',color:'#D95C5C',title:'Assinatura Vencida',msg:`"${s.name}" está ${Math.abs(diff)} dias atrasada (${fmtCur(s.value)})`});
+  });
   state.monthlyBills.forEach(b=>{ 
     if(b.status !== 'active') return;
     const nextDue = getNextBillDueDate(b.dueDay); 
     const diff=Math.round((nextDue-now)/86400000); 
-    if(diff>=0&&diff<=3) alerts.push({icon:'ti-calendar-due',color:'#ef4444',title:'Conta Mensal Próxima',msg:`"${b.name}" vence em ${diff} dias (${fmtCur(b.value)})`}); 
-    else if(diff < 0) alerts.push({icon:'ti-alert-triangle',color:'#dc2626',title:'Conta Mensal Vencida',msg:`"${b.name}" está ${Math.abs(diff)} dias atrasada (${fmtCur(b.value)})`}); 
+    if(diff>=0&&diff<=3) alerts.push({icon:'ti-calendar-due',color:'#D95C5C',title:'Conta Mensal Próxima',msg:`"${b.name}" vence em ${diff} dias (${fmtCur(b.value)})`}); 
+    else if(diff < 0) alerts.push({icon:'ti-alert-triangle',color:'#D95C5C',title:'Conta Mensal Vencida',msg:`"${b.name}" está ${Math.abs(diff)} dias atrasada (${fmtCur(b.value)})`}); 
   });
   return alerts;
 }
@@ -1435,11 +1472,8 @@ function renderSubscriptions(){
   el.innerHTML=state.subscriptions.map(s=>{
     const statusColors={active:'var(--green2)',paused:'var(--yellow)',cancelled:'var(--red2)'};
     const statusLabels={active:'Ativa',paused:'Pausada',cancelled:'Cancelada'};
-    const today=new Date(); const dueDay=s.dueDay;
-    const currentMonth=today.getMonth(); const currentYear=today.getFullYear();
-    const dueDate=new Date(currentYear,currentMonth,dueDay>today.getDate()?dueDay:dueDay);
-    if(dueDay<=today.getDate()) dueDate.setMonth(currentMonth+1);
-    const daysUntilDue=Math.ceil((dueDate-today)/86400000);
+    const dueDate = getSubscriptionNextDueDate(s);
+    const daysUntilDue=Math.ceil((dueDate-new Date())/86400000);
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
@@ -1474,12 +1508,9 @@ function renderSubscriptions(){
   const today=new Date();
   let nextDue=null; let minDays=Infinity;
   activeSubs.forEach(s=>{
-    const dueDay=s.dueDay;
-    const currentMonth=today.getMonth(); const currentYear=today.getFullYear();
-    const dueDate=new Date(currentYear,currentMonth,dueDay>today.getDate()?dueDay:dueDay);
-    if(dueDay<=today.getDate()) dueDate.setMonth(currentMonth+1);
-    const daysUntilDue=Math.ceil((dueDate-today)/86400000);
-    if(daysUntilDue<minDays){minDays=daysUntilDue; nextDue=s;}
+    const dueDate = getSubscriptionNextDueDate(s);
+    const daysUntilDue = Math.ceil((dueDate - today) / 86400000);
+    if(daysUntilDue < minDays){minDays = daysUntilDue; nextDue = s;}
   });
   if(nextDue){
     document.getElementById('sub-next-due').textContent=`Dia ${nextDue.dueDay}`;
@@ -1551,11 +1582,13 @@ function saveSubscription(){
   const selectedCard = state.cards.find(c => c.id === cardId);
   if(!cardId && !accountId){alert('Selecione um cartão ou uma conta de pagamento.');return;}
   if(selectedCard?.type === 'debit' && !selectedCard.accountId){alert('O cartão de débito precisa estar vinculado a uma conta.');return;}
+  const payload = { name, value, dueDay, category, cardId, accountId, status, notes };
+  const nextDate = getSubscriptionNextDueDate(payload);
   if(state.editingSubscription){
     const idx=state.subscriptions.findIndex(s=>s.id===state.editingSubscription);
-    if(idx>=0) state.subscriptions[idx]={...state.subscriptions[idx],name,value,dueDay,category,cardId,accountId,status,notes};
+    if(idx>=0) state.subscriptions[idx]={...state.subscriptions[idx], ...payload, nextDate};
   } else {
-    state.subscriptions.push({id:uid(),name,value,dueDay,category,cardId,accountId,status,notes});
+    state.subscriptions.push({id:uid(), ...payload, nextDate});
   }
   syncRecurringTransactions();
   save(); closeModal('modal-subscription'); renderSubscriptions(); renderDashboard(); renderCards();
@@ -1589,7 +1622,7 @@ function renderMonthlyBills(){
       <div class="card" style="margin-bottom:12px">
         <div class="card-header">
           <div style="display:flex;align-items:center;gap:8px">
-            <i class="ti ti-calendar-due" style="color:${bill.status === 'active' ? '#3b82f6' : '#94a3b8'}"></i>
+            <i class="ti ti-calendar-due" style="color:${bill.status === 'active' ? '#9AA1A8' : '#94a3b8'}"></i>
             <div>
               <h4 style="margin:0;font-size:16px">${bill.name}</h4>
               <small style="color:var(--text2)">${bill.category} • ${card ? card.name : account ? account.name : 'Nenhum cartão'}</small>

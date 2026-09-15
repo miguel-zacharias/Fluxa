@@ -81,10 +81,11 @@ test('paga a fatura e libera limite debitando a conta', async ({ page }) => {
     status: 'pending'
   });
   await seed(page, state);
+  await page.evaluate(() => openInvoicePaymentModal('credit-1'));
+  await expect(page.locator('#modal-invoice-payment')).toBeVisible();
   const result = await page.evaluate(() => {
     const period = new Date().toISOString().slice(0, 7);
     const before = {used: getCardUsed(state.cards[0]), balance: getAccountBalance(state.accounts[0])};
-    openInvoicePaymentModal('credit-1');
     document.getElementById('invoice-account-id').value = 'account-1';
     saveInvoicePayment();
     return {
@@ -146,6 +147,32 @@ test('backup inclui contas mensais e estado versionado', async ({ page }) => {
     return {version: original.version, hasBills: Array.isArray(original.monthlyBills)};
   });
   expect(result).toEqual({version: 2, hasBills: true});
+});
+
+test('alerta de assinatura ativa aparece quando vence hoje e some depois', async ({ page }) => {
+  const today = new Date();
+  const state = baseState();
+  state.subscriptions.push({
+    id: 'sub-1',
+    name: 'Spotify',
+    value: 49.9,
+    dueDay: today.getDate(),
+    category: 'Streaming',
+    cardId: 'credit-1',
+    accountId: '',
+    status: 'active',
+    notes: 'Teste de alerta'
+  });
+  await seed(page, state);
+  await page.evaluate(() => navigate('alerts'));
+  await expect(page.locator('#alerts-list')).toContainText('Assinatura Próxima');
+
+  await page.evaluate(() => {
+    state.subscriptions[0].dueDay = Math.min(31, new Date().getDate() + 15);
+    renderSubscriptions();
+    navigate('alerts');
+  });
+  await expect(page.locator('#alerts-list')).toContainText('Nenhum alerta ativo');
 });
 
 test('tutorial mobile mantém tooltip e controles dentro da tela', async ({ page }) => {

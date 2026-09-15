@@ -7,9 +7,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="media/favico.svg">
-  <meta name="theme-color" content="#0e0e0e">
+  <meta name="theme-color" content="#080A0C">
   <meta name="apple-mobile-web-app-title" content="Fluxa Finance">
   <meta name="application-name" content="Fluxa Finance">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <title>Fluxa Finance</title>
   <link rel="icon" type="image/svg+xml" href="media/favico.svg">
@@ -442,38 +445,6 @@
       <button class="btn btn-ghost" onclick="closeModal('modal-card')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
     </div>
 
-    <!-- CREDIT CARD INVOICE PAYMENT MODAL -->
-    <div class="modal-overlay" id="modal-invoice-payment">
-      <div class="modal">
-        <div class="modal-title">
-          <span id="invoice-payment-title">Pagar fatura</span>
-          <button class="btn btn-ghost" onclick="closeModal('modal-invoice-payment')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Cartão</label>
-          <select class="select" id="invoice-card-id" onchange="updateInvoicePaymentAmount()"></select>
-        </div>
-        <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label class="form-label">Fatura referente a</label>
-            <input class="input" id="invoice-period" type="month" onchange="updateInvoicePaymentAmount()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Valor da fatura (R$)</label>
-            <input class="input" id="invoice-amount" type="number" step="0.01" readonly>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Pagar com a conta</label>
-          <select class="select" id="invoice-account-id"></select>
-        </div>
-        <div id="invoice-payment-summary" style="padding:10px;border-radius:8px;background:var(--input-bg);color:var(--text2);font-size:12px;margin-bottom:8px"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-          <button class="btn btn-ghost" onclick="closeModal('modal-invoice-payment')">Cancelar</button>
-          <button class="btn btn-primary" onclick="saveInvoicePayment()"><i class="ti ti-check"></i>Pagar fatura</button>
-        </div>
-      </div>
-    </div>
     <div class="form-group"><label class="form-label">Nome do Cartão</label><input class="input" id="card-name" placeholder="Ex: Nubank Roxo"></div>
     <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Últimos 4 dígitos</label><input class="input" id="card-digits" maxlength="4" placeholder="0000"></div>
@@ -506,6 +477,39 @@
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-ghost" onclick="closeModal('modal-card')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveCard()"><i class="ti ti-check"></i>Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREDIT CARD INVOICE PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-invoice-payment">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="invoice-payment-title">Pagar fatura</span>
+      <button class="btn btn-ghost" onclick="closeModal('modal-invoice-payment')" style="padding:4px 8px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cartão</label>
+      <select class="select" id="invoice-card-id" onchange="updateInvoicePaymentAmount()"></select>
+    </div>
+    <div class="modal-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Fatura referente a</label>
+        <input class="input" id="invoice-period" type="month" onchange="updateInvoicePaymentAmount()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor da fatura (R$)</label>
+        <input class="input" id="invoice-amount" type="number" step="0.01" readonly>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pagar com a conta</label>
+      <select class="select" id="invoice-account-id"></select>
+    </div>
+    <div id="invoice-payment-summary" style="padding:10px;border-radius:8px;background:var(--input-bg);color:var(--text2);font-size:12px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-invoice-payment')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveInvoicePayment()"><i class="ti ti-check"></i>Pagar fatura</button>
     </div>
   </div>
 </div>
